@@ -3,18 +3,13 @@ package bulls.core;
 import bulls.ServerContext;
 import bulls.core.http.BullsHttpRequest;
 import bulls.core.http.BullsHttpResponse;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.List;
 
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 
 /**
@@ -23,9 +18,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
  */
 public class BullsMainProcessor implements MainProcessor{
     private static Log logger = LogFactory.getLog(BullsMainProcessor.class);
-
     private HttpHandler httpHandler;
-
 
     public BullsMainProcessor(HttpHandler httpHandler){
         this.httpHandler = httpHandler;
@@ -34,21 +27,19 @@ public class BullsMainProcessor implements MainProcessor{
     @Override
     public void process(BullsHttpRequest request, BullsHttpResponse response){
         ServerContext serverContext = ServerContext.getServerContext(request);
-        List<Interceptor> list =serverContext.getInterceptors();
+        List<BullInterceptor> list =serverContext.getBullInterceptors();
 
         //前置拦截器
-        for (Interceptor interceptor : list){
-            if (request.getRequestPath().startsWith(interceptor.getPath())) {
-                boolean b = interceptor.beforeHandle(request, response);
-                if (!b) {
-                    this.sendResponse(request, response);
-                    return;
-                }
+        for (BullInterceptor bullInterceptor : list){
+            boolean b = bullInterceptor.beforeHandle(request, response);
+            if (!b) {
+                this.sendResponse(request, response);
+                return;
             }
         }
         try {
             //内部服务,不负责写入,以便于异步模式
-            if (!response.isDid() && serverContext.getDispatcher() != null){
+            if (serverContext.getDispatcher() != null){
                 if (serverContext.getDispatcher().doService(request, response, this)){
                     //this.sendResponse(request ,response);
                     return;
@@ -56,9 +47,8 @@ public class BullsMainProcessor implements MainProcessor{
             }
 
             //静态文件,不负责写入,以便于异步模式
-            if (!response.isDid() && serverContext.getStaticFileManager() != null){
+            if (serverContext.getStaticFileManager() != null){
                 if(serverContext.getStaticFileManager().getStaticFile(request,response, this)){
-                    //this.sendResponse(request ,response);
                     return;
                 }
             }
@@ -70,11 +60,11 @@ public class BullsMainProcessor implements MainProcessor{
         }catch (Exception e) {
             logger.info("出现了一个错误", e);
             //异常拦截
-            for (Interceptor interceptor : list) {
-                if (request.getRequestPath().startsWith(interceptor.getPath())) {
-                    interceptor.onExctption(request, response, e);
-                    this.sendResponse(request, response);
-                }
+            for (BullInterceptor bullInterceptor : list) {
+
+                bullInterceptor.onException(request, response, e);
+                this.sendResponse(request, response);
+
             }
         }
     }
@@ -83,7 +73,7 @@ public class BullsMainProcessor implements MainProcessor{
     public void sendResponse(BullsHttpRequest request, BullsHttpResponse response) {
 
         ServerContext serverContext = ServerContext.getServerContext(request);
-        List<Interceptor> list =serverContext.getInterceptors();
+        List<BullInterceptor> list =serverContext.getBullInterceptors();
 
         //处理Cookie
         if (response.cookies() != null){
@@ -95,10 +85,10 @@ public class BullsMainProcessor implements MainProcessor{
         }
 
         //后置拦截器
-        for (Interceptor interceptor : list){
-            if (request.getRequestPath().startsWith(interceptor.getPath())) {
-                interceptor.beforeHandle(request, response);
-            }
+        for (BullInterceptor bullInterceptor : list){
+
+            bullInterceptor.beforeHandle(request, response);
+
         }
 
         httpHandler.writeAndFlush(request, response);

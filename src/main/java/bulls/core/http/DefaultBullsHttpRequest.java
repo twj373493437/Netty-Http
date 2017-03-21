@@ -35,15 +35,17 @@ public class DefaultBullsHttpRequest extends DefaultFullHttpRequest implements B
 
     private BullsHttpResponse response;
 
+    private int port;
+
     //Constructor
     public DefaultBullsHttpRequest(FullHttpRequest request) {
         super(request.protocolVersion(), request.method(), request.uri(), request.content(), request.headers(), request.trailingHeaders());
         attrs = new LinkedHashMap<>();
+        this.port = 0;
     }
 
     public DefaultBullsHttpRequest(FullHttpRequest request, BullsHttpResponse response) {
-        super(request.protocolVersion(), request.method(), request.uri(), request.content(), request.headers(), request.trailingHeaders());
-        attrs = new LinkedHashMap<>();
+        this(request);
         this.response = response;
     }
 
@@ -109,6 +111,18 @@ public class DefaultBullsHttpRequest extends DefaultFullHttpRequest implements B
           session = SessionUtils.getNewSession(this, response);
        }
        return session;
+    }
+
+    @Override
+    public int getPort() {
+        if (this.port == 0) {
+            HttpHeaders headers = this.headers();
+            String host = headers.get(HttpHeaderNames.HOST);
+            String port = host.split(":")[1];
+
+            this.port = Integer.valueOf(port);
+        }
+        return this.port;
     }
 
     /**

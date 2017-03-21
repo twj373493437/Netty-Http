@@ -57,4 +57,10 @@ public interface BullsHttpRequest extends FullHttpRequest{
      * @return
      */
     public HttpSession getSession();
+
+    /**
+     * 获取端口
+     * @return
+     */
+    public int getPort();
 }

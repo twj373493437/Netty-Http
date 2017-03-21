@@ -1,6 +1,7 @@
 package twj.test.interceptor;
 
-import bulls.core.Interceptor;
+import bulls.annnotation.Interceptor;
+import bulls.core.BullInterceptor;
 import bulls.core.http.BullsHttpRequest;
 import bulls.core.http.BullsHttpResponse;
 import org.apache.commons.logging.Log;
@@ -9,21 +10,22 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Created by 1 on 2017/3/15.
  */
-public class TestInterceptor implements Interceptor {
+@Interceptor("/")
+public class TestInterceptor implements BullInterceptor {
     static Log log = LogFactory.getLog(TestInterceptor.class);
     @Override
     public boolean beforeHandle(BullsHttpRequest request, BullsHttpResponse response) {
-        log.debug("go in test interceptor before");
+        //log.debug("go in test interceptor before");
         return true;
     }
 
     @Override
     public void AfterHandle(BullsHttpRequest request, BullsHttpResponse response) {
-        log.debug("go in test interceptor after");
+        //log.debug("go in test interceptor after");
     }
 
     @Override
-    public String getPath() {
-        return "/";
+    public void onException(BullsHttpRequest request, BullsHttpResponse response, Exception e) {
+        //log.error("onException", e);
     }
 }

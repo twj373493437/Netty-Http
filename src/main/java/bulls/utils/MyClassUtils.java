@@ -24,14 +24,6 @@ import java.util.jar.JarFile;
 public class MyClassUtils {
     private static Log logger = LogFactory.getLog(MyClassUtils.class);
 
-    //获取自己监听的端口
-    public static int getServerPort(HttpMessage request){
-        HttpHeaders headers = request.headers();
-        String host = headers.get(HttpHeaderNames.HOST);
-        String port = host.split(":")[1];
-        return Integer.valueOf(port);
-    }
-
     /**
      * 从包package中获取所有的Class
      * @param pack

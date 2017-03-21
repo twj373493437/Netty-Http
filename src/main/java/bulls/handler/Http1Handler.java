@@ -33,13 +33,14 @@ public class Http1Handler extends SimpleChannelInboundHandler<FullHttpRequest> i
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-        this.ctx = ctx;
         logger.debug("channelRegistered");
         super.channelRegistered(ctx);
     }
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
+        this.ctx = ctx;
+
         //获取内存空间
         ByteBuf content = ctx.alloc().buffer();
 

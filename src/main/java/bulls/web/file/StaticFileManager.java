@@ -19,43 +19,60 @@ import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERR
 
 
 /**
- * 静态文件管理
+ * 静态文件管理,
+ * TODO 考虑用缓存流的方式读文件，目前使用的是 IOUtils
  * Created by 1 on 2017/2/20.
  */
 public class StaticFileManager {
 
     private static Log logger = LogFactory.getLog(StaticFileManager.class);
-    private static final int DEFAULT_CAPACITY = 512;  //默认512个文件，一般项目而言足够了
+    private static final int DEFAULT_CAPACITY = 128;
 
     private ServerContext serverContext;
     private LruCache<String, byte[]> cache;
 
     public StaticFileManager(ServerContext serverContext){
         this.serverContext = serverContext;
-        cache = new LruCache<>(DEFAULT_CAPACITY, serverContext.getStaticFileCacheSize());
+
+        if(serverContext.getStaticFileCacheSize() != 0) {
+            cache = new LruCache<>(DEFAULT_CAPACITY, serverContext.getStaticFileCacheSize());
+        }
     }
 
     /**
-     *
+     *TODO 进过轻微的测试，好像速度没有显著改变，故其实用性有待验证
      * @param filePath 相对于根目录的路径
      * @return
      */
     private byte[] getBytesFromFile(String filePath) throws Exception{
-        byte[] fileBytes = cache.get(filePath);
-        if (null != fileBytes){
-            return fileBytes;
-        }
+        byte[] fileBytes;
 
         if (serverContext.getStaticFile() == null || serverContext.getStaticFile().equals("")){
             logger.info("没有指定静态文件目录");
             return null;
         }
 
+//        //检查缓存中有没有
+//        if(this.cache != null){
+//            fileBytes = cache.get(filePath);
+//            if (fileBytes != null){
+//                logger.debug("get file from cache");
+//                return fileBytes;
+//            }
+//        }
+
         File file = new File(serverContext.getStaticFile() + filePath);
         if(!file.exists() || file.isDirectory()){
            return null;
         }
-        return FileUtils.readFileToByteArray(file);
+
+        fileBytes = FileUtils.readFileToByteArray(file);
+
+//        if (cache != null){
+//            cache.put(filePath, fileBytes);
+//        }
+
+        return fileBytes;
     }
 
     /**

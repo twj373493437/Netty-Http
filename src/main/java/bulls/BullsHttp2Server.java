@@ -58,9 +58,6 @@ public final class BullsHttp2Server {
         //初始化
         serverContext.initContext();
 
-        //调试时检测内存泄漏
-        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
-
         // Configure SSL.
         final SslContext sslCtx;
         if (SSL) {

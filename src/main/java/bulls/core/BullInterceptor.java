@@ -6,7 +6,7 @@ import bulls.core.http.BullsHttpResponse;
 /**
  * Created by 1 on 2017/3/13.
  */
-public interface Interceptor {
+public interface BullInterceptor {
 
     /**
      * @param request

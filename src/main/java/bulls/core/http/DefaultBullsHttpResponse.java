@@ -17,11 +17,6 @@ import java.util.Map;
  */
 public class DefaultBullsHttpResponse extends DefaultFullHttpResponse implements BullsHttpResponse{
 
-    /**
-     * 是否已经处理好了的Http响应,当它为真时，后续不再处理它
-     */
-    private boolean isDid;
-
     private List<Cookie> cookies;
 
     //Construct
@@ -51,16 +46,6 @@ public class DefaultBullsHttpResponse extends DefaultFullHttpResponse implements
 
     public DefaultBullsHttpResponse(HttpVersion version, HttpResponseStatus status, ByteBuf content, HttpHeaders headers, HttpHeaders trailingHeaders) {
         super(version, status, content, headers, trailingHeaders);
-    }
-
-    @Override
-    public boolean isDid() {
-        return this.isDid;
-    }
-
-    @Override
-    public void did() {
-        this.isDid = true;
     }
 
     @Override

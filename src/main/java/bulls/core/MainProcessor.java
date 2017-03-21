@@ -10,7 +10,7 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 
 /**
- * 抽象层
+ * 抽象层,为了以后兼容HTTP2
  * Created by 1 on 2017/3/21.
  */
 public interface MainProcessor {
@@ -30,9 +30,8 @@ public interface MainProcessor {
      * @param response
      * @param request
      * @param status
-     * @return
      */
-    public static void productSimpleResponse(BullsHttpResponse response, BullsHttpRequest request, HttpResponseStatus status, String message){
+    static void productSimpleResponse(BullsHttpResponse response, BullsHttpRequest request, HttpResponseStatus status, String message){
         ByteBuf content = response.content();
         if(message == null){
             message = status.reasonPhrase();

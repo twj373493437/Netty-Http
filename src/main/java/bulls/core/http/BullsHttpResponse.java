@@ -11,23 +11,21 @@ import java.util.List;
 public interface BullsHttpResponse extends FullHttpResponse {
 
     /**
-     * 是否已经处理
-     *
-     * @return
-     */
-    boolean isDid();
-
-    /**
-     * 表示这个返回已经被处理过了
-     */
-    void did();
-
-    /**
      * 设置Cookie
      *
      * @param cookie
      */
     void addCookie(Cookie cookie);
 
+    /**
+     * 获取Cookies
+     * @return
+     */
     List<Cookie> cookies();
+
+    /**
+     * 写入bytes
+     * @param bytes
+     */
+    void writeContent(byte[] bytes);
 }

@@ -5,6 +5,7 @@ import bulls.annnotation.Controller;
 import bulls.annnotation.Interceptor;
 import bulls.annnotation.Mapping;
 import bulls.annnotation.RequestParams;
+import bulls.core.BullInterceptor;
 import bulls.core.MainProcessor;
 import bulls.core.http.BullsHttpRequest;
 import bulls.core.http.BullsHttpResponse;
@@ -81,13 +82,13 @@ public class Dispatcher {
                         functionMap.put(value, function);
                         logger.debug("add function : " + value);
                     }
-                    continue;
                 }
 
                 //寻找拦截器
-                Interceptor interceptor = (Interceptor) c.getAnnotation(Interceptor.class);
+               Interceptor interceptor = (Interceptor) c.getAnnotation(Interceptor.class);
                 if (interceptor != null){
-                    this.serverContext.addInterceptor((bulls.core.Interceptor) c.newInstance());
+                    logger.debug("add interceptor" + interceptor.toString());
+                    this.serverContext.addInterceptor((BullInterceptor) c.newInstance());
                 }
             }
         }

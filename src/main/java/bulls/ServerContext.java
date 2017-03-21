@@ -1,7 +1,8 @@
 package bulls;
 
 import bulls.core.dispatcher.Dispatcher;
-import bulls.core.Interceptor;
+import bulls.core.BullInterceptor;
+import bulls.core.http.BullsHttpRequest;
 import bulls.core.session.SessionListener;
 import bulls.core.session.SessionReaderWriter;
 import bulls.core.session.men.impl.MenSessionReaderWriter;
@@ -45,20 +46,20 @@ public class ServerContext {
     private SessionListener sessionListener;
 
     //拦截器
-    private List<Interceptor> interceptors;
+    private List<BullInterceptor> bullInterceptors;
 
     private ServerContext(){
         scanPackages = new ArrayList<>();
-        interceptors = new ArrayList<>(8);  //一般不会超过8个
+        bullInterceptors = new ArrayList<>(8);  //一般不会超过8个
     }
 
     /**
      * 添加拦截器
-     * @param interceptor
+     * @param bullInterceptor
      */
-    public void addInterceptor(Interceptor interceptor){
-        if (interceptor != null){
-            this.interceptors.add(interceptor);
+    public void addInterceptor(BullInterceptor bullInterceptor){
+        if (bullInterceptor != null){
+            this.bullInterceptors.add(bullInterceptor);
         }
     }
 
@@ -66,8 +67,8 @@ public class ServerContext {
      * 获取拦截器
      * @return
      */
-    public List<Interceptor> getInterceptors(){
-        return this.interceptors;
+    public List<BullInterceptor> getBullInterceptors(){
+        return this.bullInterceptors;
     }
 
     public Object getAttr(String key){
@@ -128,8 +129,8 @@ public class ServerContext {
      * @param request
      * @return
      */
-    public static ServerContext getServerContext(FullHttpRequest request){
-        int port = MyClassUtils.getServerPort(request);
+    public static ServerContext getServerContext(BullsHttpRequest request){
+        int port = request.getPort();
         return ServerContext.getServerContext(port);
     }
 
