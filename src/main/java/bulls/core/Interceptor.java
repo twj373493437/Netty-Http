@@ -25,6 +25,14 @@ public interface Interceptor {
     void AfterHandle(BullsHttpRequest request, BullsHttpResponse response);
 
     /**
+     * 异常处理
+     * @param request
+     * @param response
+     * @param e
+     */
+    void onExctption(BullsHttpRequest request, BullsHttpResponse response, Exception e);
+
+    /**
      * 获取要拦截的Path
      * @return
      */

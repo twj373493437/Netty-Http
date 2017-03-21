@@ -1,4 +1,4 @@
-package twj.controller;
+package twj.test.controller;
 
 import bulls.annnotation.Controller;
 import bulls.annnotation.Mapping;

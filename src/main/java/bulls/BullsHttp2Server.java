@@ -30,6 +30,7 @@ import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
 import io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
 import io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.apache.commons.logging.Log;
@@ -41,7 +42,6 @@ import org.apache.commons.logging.LogFactory;
 public final class BullsHttp2Server {
 
     private static Log logger = LogFactory.getLog(BullsHttp2Server.class);
-
 
     private boolean SSL;
     private int PORT;
@@ -57,6 +57,9 @@ public final class BullsHttp2Server {
     public void start() throws Exception {
         //初始化
         serverContext.initContext();
+
+        //调试时检测内存泄漏
+        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
 
         // Configure SSL.
         final SslContext sslCtx;
@@ -81,16 +84,19 @@ public final class BullsHttp2Server {
             sslCtx = null;
         }
         // Configure the http2Orhttp.
+
+        //这里的线程数设置为CPU的核数，再多的也不能并行执行，如果在work线程中有阻塞会导致work线程不够用的情况，
+        // 所以考虑加一个后台处理线程池，让别的线程去执行可能阻塞的操作
         int threads = Runtime.getRuntime().availableProcessors() * 2;
 
         EventLoopGroup bossGroup = new NioEventLoopGroup(threads);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(1000);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(threads);
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.option(ChannelOption.SO_BACKLOG, 1024);
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler(LogLevel.INFO))
+                    .handler(new LoggingHandler(LogLevel.DEBUG))
                     .childHandler(new Http2ServerInitializer(sslCtx));
 
             Channel ch = b.bind(PORT).sync().channel();
@@ -100,7 +106,7 @@ public final class BullsHttp2Server {
 
             ch.closeFuture().sync().addListener(new GenericFutureListener<Future<? super Void>>() {
                 public void operationComplete(Future<? super Void> future) throws Exception {
-                    logger.info("shutdown the service");
+                    logger.info("service has shutdown");
                 }
             });
         } finally {

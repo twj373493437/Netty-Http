@@ -1,4 +1,4 @@
-package twj;
+package twj.test;
 
 import bulls.core.http.DefaultBullsHttpResponse;
 import junit.framework.Test;
@@ -6,9 +6,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**

@@ -1,4 +1,4 @@
-package twj;
+package twj.test;
 
 import bulls.BullsHttp2Server;
 import bulls.ServerContext;
@@ -17,7 +17,7 @@ public class App {
 
         serverContext.setWelcomePage("welcome.html");
         serverContext.setStaticFile("E:\\development\\netty_http_static_test");
-        serverContext.addPackage("twj.controller");  //扫描的包
+        serverContext.addPackage("twj.test");  //扫描的包
 
         try {
             bullsHttp2Server.start();

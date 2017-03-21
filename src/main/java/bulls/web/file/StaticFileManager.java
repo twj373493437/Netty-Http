@@ -1,9 +1,9 @@
 package bulls.web.file;
 
 import bulls.ServerContext;
+import bulls.core.MainProcessor;
 import bulls.core.http.BullsHttpRequest;
 import bulls.core.http.BullsHttpResponse;
-import bulls.core.MainHttpHandler;
 import bulls.web.file.cache.LruCache;
 import io.netty.buffer.ByteBuf;
 import org.apache.commons.io.FileUtils;
@@ -64,7 +64,7 @@ public class StaticFileManager {
      * @param request
      * @return
      */
-    public void getStaticFile(BullsHttpRequest request, BullsHttpResponse response){
+    public boolean getStaticFile(BullsHttpRequest request, BullsHttpResponse response, MainProcessor mainProcessor){
         ByteBuf content = response.content();
 
         String path = request.getRequestPath();
@@ -75,16 +75,19 @@ public class StaticFileManager {
         try {
             byte[] fileByte = this.getBytesFromFile(path);
             if (fileByte == null){
-                return;
+                return false;
             }
             content.writeBytes(fileByte);
             MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
             response.headers().set(CONTENT_TYPE, mimeTypesMap.getContentType(path));
             response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
-            response.did();
+            mainProcessor.sendResponse(request, response);
+            return true;
         } catch (Exception e) {
             logger.error("读取文件发生错误:" + path, e);
-            MainHttpHandler.getSimpleResponse(response,request,INTERNAL_SERVER_ERROR, "服务器内部错误：" + e.toString());
+            MainProcessor.productSimpleResponse(response,request,INTERNAL_SERVER_ERROR, "服务器内部错误：" + e.toString());
+            mainProcessor .sendResponse(request, response);
+            return  true;
         }
     }
 }

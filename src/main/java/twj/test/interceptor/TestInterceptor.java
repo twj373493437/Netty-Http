@@ -1,4 +1,4 @@
-package twj.interceptor;
+package twj.test.interceptor;
 
 import bulls.core.Interceptor;
 import bulls.core.http.BullsHttpRequest;

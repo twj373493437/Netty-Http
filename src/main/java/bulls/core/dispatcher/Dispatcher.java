@@ -5,9 +5,9 @@ import bulls.annnotation.Controller;
 import bulls.annnotation.Interceptor;
 import bulls.annnotation.Mapping;
 import bulls.annnotation.RequestParams;
+import bulls.core.MainProcessor;
 import bulls.core.http.BullsHttpRequest;
 import bulls.core.http.BullsHttpResponse;
-import bulls.core.MainHttpHandler;
 import bulls.utils.MyClassUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -106,32 +106,33 @@ public class Dispatcher {
      * 处理系统定义的资源
      * @param response
      * @param request
-     * @return
+     * @return boolean 是否处理
      */
-    public void doService( BullsHttpRequest request, BullsHttpResponse response){
+    public boolean doService(BullsHttpRequest request, BullsHttpResponse response, MainProcessor mainProcessor){
 
         String path = request.getRequestPath();
-        // todo 支持restfull格式请求
+
         //检查有无此方法
         Dispatcher dispatcher = ServerContext.getServerContext(request).getDispatcher();
         if (dispatcher == null){
             logger.info("dispatcher 没有初始化");
-            return;
+            return false;
         }
         Function function = dispatcher.getFunction(path);
         if (function == null){
-            return;
+            return false;
         }
         //检查Method是否匹配
         if (function.getRequestMethod() != null && !function.getRequestMethod().equals("") && !request.method().asciiName().equals(function.getRequestMethod())){
             logger.debug("请求method 不配陪" + path);
-            MainHttpHandler.getSimpleResponse(response,request,BAD_REQUEST, "请求方法不匹配！");
-            return ;
+            MainProcessor.productSimpleResponse(response,request,BAD_REQUEST, "请求方法不匹配！");
+            mainProcessor.sendResponse(request, response);
+            return true;
         }
 
         //处理
         Method method = function.getMethod();
-        Object res = null;
+        Object res;
         ByteBuf content = response.content();
         try {
             Parameter[] parameters = method.getParameters();
@@ -152,13 +153,18 @@ public class Dispatcher {
             }
             response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
             response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
-            response.did();
+            mainProcessor.sendResponse(request, response);
+            return true;
         } catch (IllegalAccessException e) {
             logger.error("处理失败！", e);
-            MainHttpHandler.getSimpleResponse(response,request,INTERNAL_SERVER_ERROR, "执行方法时发生了错误！");
+            MainProcessor.productSimpleResponse(response,request,INTERNAL_SERVER_ERROR, "执行方法时发生了错误！");
+            mainProcessor.sendResponse(request, response);
+            return true;
         } catch (InvocationTargetException e) {
             logger.error("处理失败！", e);
-            MainHttpHandler.getSimpleResponse(response,request,INTERNAL_SERVER_ERROR, "执行方法时发生了错误！");
+            MainProcessor.productSimpleResponse(response,request,INTERNAL_SERVER_ERROR, "执行方法时发生了错误！");
+            mainProcessor.sendResponse(request, response);
+            return true;
         }
     }
 
