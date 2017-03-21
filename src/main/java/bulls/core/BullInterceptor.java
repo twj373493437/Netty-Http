@@ -30,11 +30,5 @@ public interface Interceptor {
      * @param response
      * @param e
      */
-    void onExctption(BullsHttpRequest request, BullsHttpResponse response, Exception e);
-
-    /**
-     * 获取要拦截的Path
-     * @return
-     */
-    String getPath();
+    void onException(BullsHttpRequest request, BullsHttpResponse response, Exception e);
 }
