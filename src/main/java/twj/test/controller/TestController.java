@@ -1,8 +1,8 @@
 package twj.test.controller;
 
-import bulls.annnotation.Controller;
-import bulls.annnotation.Mapping;
-import bulls.core.http.BullsHttpRequest;
+import me.netty.http.annnotation.Controller;
+import me.netty.http.annnotation.Mapping;
+import me.netty.http.core.http.BullsHttpRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

@@ -1,6 +1,6 @@
 package twj.test;
 
-import bulls.core.http.DefaultBullsHttpResponse;
+import me.netty.http.core.http.DefaultBullsHttpResponse;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

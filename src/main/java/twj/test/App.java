@@ -1,8 +1,7 @@
 package twj.test;
 
-import bulls.BullsHttp2Server;
-import bulls.ServerContext;
-import io.netty.util.ResourceLeakDetector;
+import me.netty.http.BullsHttp2Server;
+import me.netty.http.ServerContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

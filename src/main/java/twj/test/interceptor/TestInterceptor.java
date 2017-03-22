@@ -1,9 +1,9 @@
 package twj.test.interceptor;
 
-import bulls.annnotation.Interceptor;
-import bulls.core.BullInterceptor;
-import bulls.core.http.BullsHttpRequest;
-import bulls.core.http.BullsHttpResponse;
+import me.netty.http.annnotation.Interceptor;
+import me.netty.http.core.BullInterceptor;
+import me.netty.http.core.http.BullsHttpRequest;
+import me.netty.http.core.http.BullsHttpResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
