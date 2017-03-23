@@ -25,12 +25,10 @@ public class ProcessRunnable implements Runnable{
 
     @Override
     public void run() {
-        //计数加一
-
         logger.debug("进入异步线程执行");
         dispatcher.doMethod(mainProcessor, function);
 
-        //计数减一
+        //计数减一，release,在进入异步之前，retain
         ByteBuf byteBuf = mainProcessor.getRequest().content();
         if (byteBuf!= null && byteBuf.refCnt() > 0){
             byteBuf.release();

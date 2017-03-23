@@ -52,7 +52,7 @@ public class Dispatcher {
         // 因为设计的初衷是为了应对可能阻塞的服务，
         // 所以maxPoolSize设置的大一点，而为了节约内存，队列适当小一点，为了work线程不出现饥饿，使用公平锁
         this.executorService = new ThreadPoolExecutor(5,
-                100,
+                500,
                 60L, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(100, true),
                 (r, executor) -> {
