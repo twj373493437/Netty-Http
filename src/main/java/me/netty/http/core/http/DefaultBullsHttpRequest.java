@@ -181,7 +181,6 @@ public class DefaultBullsHttpRequest extends DefaultFullHttpRequest implements B
             //String requestCharset = strings[1].split("=")[1];
 
             ByteBuf byteBuf = this.content();
-            byteBuf.retain();
             try {
                 String body = new String(ByteBufUtil.getBytes(byteBuf), "UTF-8");
                 String[] params = body.split("&");
@@ -195,5 +194,7 @@ public class DefaultBullsHttpRequest extends DefaultFullHttpRequest implements B
                 logger.error("获取请求体信息出错", e);
             }
         }
+
+        //TODO 传递的其他信息
     }
 }

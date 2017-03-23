@@ -1,5 +1,6 @@
 package twj.test;
 
+import io.netty.util.ResourceLeakDetector;
 import me.netty.http.BullsHttp2Server;
 import me.netty.http.ServerContext;
 import org.apache.commons.logging.Log;
@@ -15,6 +16,7 @@ public class App {
 
         //调试时检测内存泄漏
         //ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
+        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
 
         BullsHttp2Server bullsHttp2Server = new BullsHttp2Server(8081, false);   //SSL暂时不可用
         ServerContext serverContext = bullsHttp2Server.getServerContext();

@@ -23,9 +23,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
+
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
@@ -48,7 +47,20 @@ public class Dispatcher {
     public Dispatcher(ServerContext serverContext){
         this.functionMap = new ConcurrentHashMap<>(128);
         this.serverContext = serverContext;
-        this.executorService = Executors.newCachedThreadPool();
+
+        //异步的处理，当线程和队列都满了时，拒绝请求,
+        // 因为设计的初衷是为了应对可能阻塞的服务，
+        // 所以maxPoolSize设置的大一点，而为了节约内存，队列适当小一点，为了work线程不出现饥饿，使用公平锁
+        this.executorService = new ThreadPoolExecutor(5,
+                100,
+                60L, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<Runnable>(100, true),
+                (r, executor) -> {
+                    ProcessRunnable runnable = (ProcessRunnable) r;
+                    MainProcessor processor = runnable.getMainProcessor();
+                    MainProcessor.productSimpleResponse(processor.getResponse(),processor.getRequest(),INTERNAL_SERVER_ERROR,"服务器不堪重负，请待会再试");
+                    processor.sendResponse();
+                });
     }
 
     /**
@@ -140,9 +152,10 @@ public class Dispatcher {
 
         //如果异步，线程池
         if(function.isAsyn()) {
-            //计数加一
             ByteBuf byteBuf = mainProcessor.getRequest().content();
-            byteBuf.retain();
+            if (byteBuf != null){
+                byteBuf.retain();
+            }
 
             ProcessRunnable runnable = new ProcessRunnable(mainProcessor, this, function);
             this.executorService.submit(runnable);
