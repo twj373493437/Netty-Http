@@ -8,13 +8,20 @@ import java.lang.reflect.Method;
  */
 public class Function {
     private Object controllerObject; //
-    private String requestMethod; //http method
+    private String httpMethod; //http method
     private Method method; //method well be do
+    private boolean isAsyn; //是否异步
 
-    public Function(Object obj, String requestMethod, Method method){
+    public Function(Object obj, String httpMethod, Method method){
         this.controllerObject = obj;
-        this.requestMethod = requestMethod;
+        this.httpMethod = httpMethod;
         this.method = method;
+        isAsyn = false;
+    }
+
+    public Function(Object obj, String httpMethod, Method method, boolean isAsyn){
+        this(obj, httpMethod, method);
+        this.isAsyn = isAsyn;
     }
 
     public Object getControllerObject() {
@@ -25,19 +32,19 @@ public class Function {
         this.controllerObject = controllerObject;
     }
 
-    public String getRequestMethod() {
-        return requestMethod;
-    }
-
-    public void setRequestMethod(String requestMethod) {
-        this.requestMethod = requestMethod;
-    }
-
     public Method getMethod() {
         return method;
     }
 
     public void setMethod(Method method) {
         this.method = method;
+    }
+
+    public String getHttpMethod() {
+        return httpMethod;
+    }
+
+    public boolean isAsyn() {
+        return isAsyn;
     }
 }

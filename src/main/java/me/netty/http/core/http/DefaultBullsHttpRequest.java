@@ -181,6 +181,7 @@ public class DefaultBullsHttpRequest extends DefaultFullHttpRequest implements B
             //String requestCharset = strings[1].split("=")[1];
 
             ByteBuf byteBuf = this.content();
+            byteBuf.retain();
             try {
                 String body = new String(ByteBufUtil.getBytes(byteBuf), "UTF-8");
                 String[] params = body.split("&");

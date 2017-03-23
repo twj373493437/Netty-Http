@@ -24,7 +24,7 @@ public class TestController {
         return "hello bulls! " + request.getPram("name");
     }
 
-    @Mapping(value = "hello/bulls1")
+    @Mapping(value = "hello/bulls1", isAsyn = true)
     public String test1(BullsHttpRequest request){
 
         if (request == null){

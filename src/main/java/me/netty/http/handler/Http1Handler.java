@@ -8,6 +8,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
+import me.netty.http.core.MainProcessor;
 import me.netty.http.core.http.BullsHttpRequest;
 import me.netty.http.core.http.BullsHttpResponse;
 import me.netty.http.core.http.DefaultBullsHttpRequest;
@@ -27,10 +28,8 @@ public class Http1Handler extends SimpleChannelInboundHandler<FullHttpRequest> i
 
     private ChannelHandlerContext ctx;
 
-    private BullsMainProcessor processor;
-
     public Http1Handler() {
-        this.processor = new BullsMainProcessor(this);
+        //this.processor = new BullsMainProcessor(this);
         logger.debug("new Http1handler");
     }
 
@@ -43,20 +42,20 @@ public class Http1Handler extends SimpleChannelInboundHandler<FullHttpRequest> i
     @Override
     public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
         this.ctx = ctx;
-
         //获取内存空间
         ByteBuf content = ctx.alloc().buffer();
 
         BullsHttpRequest request = new DefaultBullsHttpRequest(req);
         BullsHttpResponse response= new DefaultBullsHttpResponse(HTTP_1_1, OK, content);
-
         if (HttpUtil.is100ContinueExpected(req)) {
             response = new DefaultBullsHttpResponse(HTTP_1_1, CONTINUE);
             this.writeAndFlush(req, response);
             return;
         }
-        processor.process(request,response);
 
+        //初始化MainProcessor
+        MainProcessor processor = new BullsMainProcessor(this, request, response);
+        processor.process(request,response);
     }
 
     @Override

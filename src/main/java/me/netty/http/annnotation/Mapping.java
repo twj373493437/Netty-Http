@@ -13,4 +13,5 @@ import java.lang.annotation.Target;
 public @interface Mapping {
     String value();  //路径
     String method() default "";//方法
+    boolean isAsyn() default false; //是否用新的线程池来处理这个请求，而不是用Netty work线程
 }

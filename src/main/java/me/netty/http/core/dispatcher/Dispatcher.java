@@ -1,5 +1,6 @@
 package me.netty.http.core.dispatcher;
 
+import io.netty.buffer.ByteBuf;
 import me.netty.http.ServerContext;
 import me.netty.http.annnotation.Controller;
 import me.netty.http.annnotation.Interceptor;
@@ -7,10 +8,10 @@ import me.netty.http.annnotation.Mapping;
 import me.netty.http.annnotation.RequestParams;
 import me.netty.http.core.BullInterceptor;
 import me.netty.http.core.MainProcessor;
+import me.netty.http.core.asyn.ProcessRunnable;
 import me.netty.http.core.http.BullsHttpRequest;
 import me.netty.http.core.http.BullsHttpResponse;
 import me.netty.http.utils.MyClassUtils;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
@@ -23,6 +24,8 @@ import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
@@ -40,10 +43,12 @@ public class Dispatcher {
 
     private Map<String, Function> functionMap;
     private ServerContext serverContext;
+    private ExecutorService executorService;
 
     public Dispatcher(ServerContext serverContext){
-        functionMap = new ConcurrentHashMap<>(128);
+        this.functionMap = new ConcurrentHashMap<>(128);
         this.serverContext = serverContext;
+        this.executorService = Executors.newCachedThreadPool();
     }
 
     /**
@@ -78,7 +83,8 @@ public class Dispatcher {
                             value = "/" + value;
                         }
 
-                        Function function = new Function(o, mapping.method(), method);
+                        //保存
+                        Function function = new Function(o, mapping.method(), method, mapping.isAsyn());
                         functionMap.put(value, function);
                         logger.debug("add function : " + value);
                     }
@@ -123,49 +129,70 @@ public class Dispatcher {
         if (function == null){
             return false;
         }
+
         //检查Method是否匹配
-        if (function.getRequestMethod() != null && !function.getRequestMethod().equals("") && !request.method().asciiName().equals(function.getRequestMethod())){
+        if (function.getHttpMethod() != null && !function.getHttpMethod().equals("") && !request.method().asciiName().equals(function.getHttpMethod())){
             logger.debug("请求method 不配陪" + path);
             MainProcessor.productSimpleResponse(response,request,BAD_REQUEST, "请求方法不匹配！");
-            mainProcessor.sendResponse(request, response);
+            mainProcessor.sendResponse();
             return true;
         }
 
+        //如果异步，线程池
+        if(function.isAsyn()) {
+            //计数加一
+            ByteBuf byteBuf = mainProcessor.getRequest().content();
+            byteBuf.retain();
+
+            ProcessRunnable runnable = new ProcessRunnable(mainProcessor, this, function);
+            this.executorService.submit(runnable);
+        }else {
+            this.doMethod(mainProcessor, function);
+        }
+        //表示已经接受了这个处理
+        return true;
+    }
+
+    /**
+     * 处理的方法
+     * @param mainProcessor
+     * @param function
+     */
+    public void doMethod(MainProcessor mainProcessor, Function function){
         //处理
         Method method = function.getMethod();
         Object res;
-        ByteBuf content = response.content();
         try {
             Parameter[] parameters = method.getParameters();
             if (parameters == null || parameters.length == 0){
                 res = method.invoke(function.getControllerObject());
             }else{
                 //绑定参数
-                Object[] params = this.bindParams(parameters, request, response);
+                Object[] params = this.bindParams(parameters, mainProcessor.getRequest(), mainProcessor.getResponse());
                 res = method.invoke(function.getControllerObject(), params);
             }
 
             //构造返回响应对象
             if(res instanceof String){
-                ByteBufUtil.writeUtf8(content, (String)res);
+                ByteBufUtil.writeUtf8(mainProcessor.getResponse().content(), (String)res);
             }else{
                 //序列化？
                 // todo 这里加上序列化， 另外考虑传入content type
             }
-            response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
-            response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
-            mainProcessor.sendResponse(request, response);
-            return true;
+            mainProcessor.getResponse().headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
+            mainProcessor.getResponse().headers().setInt(CONTENT_LENGTH, mainProcessor.getResponse().content().readableBytes());
+            mainProcessor.sendResponse();
+            return;
         } catch (IllegalAccessException e) {
             logger.error("处理失败！", e);
-            MainProcessor.productSimpleResponse(response,request,INTERNAL_SERVER_ERROR, "执行方法时发生了错误！");
-            mainProcessor.sendResponse(request, response);
-            return true;
+            MainProcessor.productSimpleResponse(mainProcessor.getResponse(),mainProcessor.getRequest(),INTERNAL_SERVER_ERROR, "执行方法时发生了错误！");
+            mainProcessor.sendResponse();
+            return;
         } catch (InvocationTargetException e) {
             logger.error("处理失败！", e);
-            MainProcessor.productSimpleResponse(response,request,INTERNAL_SERVER_ERROR, "执行方法时发生了错误！");
-            mainProcessor.sendResponse(request, response);
-            return true;
+            MainProcessor.productSimpleResponse(mainProcessor.getResponse(),mainProcessor.getRequest(),INTERNAL_SERVER_ERROR, "执行方法时发生了错误！");
+            mainProcessor.sendResponse();
+            return;
         }
     }
 

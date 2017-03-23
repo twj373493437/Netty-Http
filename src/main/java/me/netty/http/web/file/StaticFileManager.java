@@ -40,7 +40,7 @@ public class StaticFileManager {
     }
 
     /**
-     *TODO 进过轻微的测试，好像速度没有显著改变，故其实用性有待验证
+     *进过轻微的测试，好像速度没有显著改变，故其实用性有待验证
      * @param filePath 相对于根目录的路径
      * @return
      */
@@ -98,12 +98,12 @@ public class StaticFileManager {
             MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
             response.headers().set(CONTENT_TYPE, mimeTypesMap.getContentType(path));
             response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
-            mainProcessor.sendResponse(request, response);
+            mainProcessor.sendResponse();
             return true;
         } catch (Exception e) {
             logger.error("读取文件发生错误:" + path, e);
             MainProcessor.productSimpleResponse(response,request,INTERNAL_SERVER_ERROR, "服务器内部错误：" + e.toString());
-            mainProcessor .sendResponse(request, response);
+            mainProcessor .sendResponse();
             return  true;
         }
     }

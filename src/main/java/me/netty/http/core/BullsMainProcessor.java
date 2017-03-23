@@ -13,15 +13,21 @@ import java.util.List;
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 
 /**
- * 基于事件的处理模式
+ * 基于事件的处理模式,
+ *
  * Created by 1 on 2017/3/21.
  */
 public class BullsMainProcessor implements MainProcessor{
     private static Log logger = LogFactory.getLog(BullsMainProcessor.class);
-    private HttpHandler httpHandler;
 
-    public BullsMainProcessor(HttpHandler httpHandler){
+    private HttpHandler httpHandler;
+    private BullsHttpResponse response;
+    private BullsHttpRequest request;
+
+    public BullsMainProcessor(HttpHandler httpHandler, BullsHttpRequest request, BullsHttpResponse response){
         this.httpHandler = httpHandler;
+        this.request = request;
+        this.response = response;
     }
 
     @Override
@@ -33,7 +39,7 @@ public class BullsMainProcessor implements MainProcessor{
         for (BullInterceptor bullInterceptor : list){
             boolean b = bullInterceptor.beforeHandle(request, response);
             if (!b) {
-                this.sendResponse(request, response);
+                this.sendResponse();
                 return;
             }
         }
@@ -55,7 +61,7 @@ public class BullsMainProcessor implements MainProcessor{
 
             //404 错误
             MainProcessor.productSimpleResponse(response, request, NOT_FOUND, "没有找到你想要的资源！--Bulls");
-            this.sendResponse(request, response);
+            this.sendResponse();
 
         }catch (Exception e) {
             logger.info("出现了一个错误", e);
@@ -63,14 +69,14 @@ public class BullsMainProcessor implements MainProcessor{
             for (BullInterceptor bullInterceptor : list) {
 
                 bullInterceptor.onException(request, response, e);
-                this.sendResponse(request, response);
+                this.sendResponse();
 
             }
         }
     }
 
     @Override
-    public void sendResponse(BullsHttpRequest request, BullsHttpResponse response) {
+    public void sendResponse() {
 
         ServerContext serverContext = ServerContext.getServerContext(request);
         List<BullInterceptor> list =serverContext.getBullInterceptors();
@@ -92,5 +98,15 @@ public class BullsMainProcessor implements MainProcessor{
         }
 
         httpHandler.writeAndFlush(request, response);
+    }
+
+    @Override
+    public BullsHttpResponse getResponse() {
+        return this.response;
+    }
+
+    @Override
+    public BullsHttpRequest getRequest() {
+        return this.request;
     }
 }

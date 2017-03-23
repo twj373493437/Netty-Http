@@ -23,7 +23,7 @@ public interface MainProcessor {
     /**
      * 处理好了
      */
-    void sendResponse(BullsHttpRequest request, BullsHttpResponse response);
+    void sendResponse();
 
     /**
      * 简单类型响应
@@ -42,4 +42,16 @@ public interface MainProcessor {
         response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
         response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
     }
+
+    /**
+     * 获取response
+     * @return
+     */
+    BullsHttpResponse getResponse();
+
+    /**
+     * 获取request
+     * @return
+     */
+    BullsHttpRequest getRequest();
 }
