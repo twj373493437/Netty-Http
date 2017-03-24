@@ -1,5 +1,6 @@
 package me.netty.http.core;
 
+import io.netty.channel.ChannelHandlerContext;
 import me.netty.http.ServerContext;
 import me.netty.http.core.http.BullsHttpRequest;
 import me.netty.http.core.http.BullsHttpResponse;
@@ -9,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 
@@ -23,11 +25,13 @@ public class BullsMainProcessor implements MainProcessor{
     private HttpHandler httpHandler;
     private BullsHttpResponse response;
     private BullsHttpRequest request;
+    private ChannelHandlerContext ctx;  //这里保存ctx
 
-    public BullsMainProcessor(HttpHandler httpHandler, BullsHttpRequest request, BullsHttpResponse response){
+    public BullsMainProcessor(HttpHandler httpHandler, BullsHttpRequest request, BullsHttpResponse response, ChannelHandlerContext ctx){
         this.httpHandler = httpHandler;
         this.request = request;
         this.response = response;
+        this.ctx = ctx;
     }
 
     @Override
@@ -97,7 +101,7 @@ public class BullsMainProcessor implements MainProcessor{
 
         }
 
-        httpHandler.writeAndFlush(request, response);
+        httpHandler.writeAndFlush(request, response, this.ctx);
     }
 
     @Override

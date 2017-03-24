@@ -15,8 +15,8 @@ public class App {
     public static void main(String[] args) {
 
         //调试时检测内存泄漏
-        //ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
-        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.SIMPLE);
+        //ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
 
         BullsHttp2Server bullsHttp2Server = new BullsHttp2Server(8081, false);   //SSL暂时不可用
         ServerContext serverContext = bullsHttp2Server.getServerContext();

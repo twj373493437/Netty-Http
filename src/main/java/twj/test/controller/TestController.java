@@ -14,6 +14,11 @@ public class TestController {
 
     private static Log logger = LogFactory.getLog(TestController.class);
 
+    /**
+     * 测这个的时候 JMeter直接卡住
+     * @param request
+     * @return
+     */
     @Mapping(value = "hello/bulls")
     public String test(BullsHttpRequest request){
 
@@ -24,6 +29,11 @@ public class TestController {
         return "hello bulls! " + request.getPram("name");
     }
 
+    /**
+     * 经过测试，客户机和服务在同一台i5 4590上的一分钟请求数50万
+     * @param request
+     * @return
+     */
     @Mapping(value = "hello/bulls1", isAsyn = true)
     public String test1(BullsHttpRequest request){
 
@@ -33,4 +43,6 @@ public class TestController {
 
         return "hello bulls! " + request.getPram("name");
     }
+
+    //请求文件时只有5万
 }

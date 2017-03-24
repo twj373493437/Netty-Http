@@ -1,6 +1,7 @@
 
 package me.netty.http.handler;
 
+import io.netty.channel.ChannelHandler;
 import me.netty.http.core.BullsMainProcessor;
 import me.netty.http.core.HttpHandler;
 import io.netty.buffer.ByteBuf;
@@ -23,14 +24,12 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 /**
  * http 1.1
  */
+@ChannelHandler.Sharable
 public class Http1Handler extends SimpleChannelInboundHandler<FullHttpRequest> implements HttpHandler {
     private static Log logger = LogFactory.getLog(Http1Handler.class);
 
-    private ChannelHandlerContext ctx;
-
     public Http1Handler() {
-        //this.processor = new BullsMainProcessor(this);
-        logger.debug("new Http1handler");
+
     }
 
     @Override
@@ -41,7 +40,6 @@ public class Http1Handler extends SimpleChannelInboundHandler<FullHttpRequest> i
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
-        this.ctx = ctx;
         //获取内存空间
         ByteBuf content = ctx.alloc().buffer();
 
@@ -49,12 +47,12 @@ public class Http1Handler extends SimpleChannelInboundHandler<FullHttpRequest> i
         BullsHttpResponse response= new DefaultBullsHttpResponse(HTTP_1_1, OK, content);
         if (HttpUtil.is100ContinueExpected(req)) {
             response = new DefaultBullsHttpResponse(HTTP_1_1, CONTINUE);
-            this.writeAndFlush(req, response);
+            this.writeAndFlush(req, response, ctx);
             return;
         }
 
         //初始化MainProcessor
-        MainProcessor processor = new BullsMainProcessor(this, request, response);
+        MainProcessor processor = new BullsMainProcessor(this, request, response, ctx);
         processor.process(request,response);
     }
 
@@ -65,7 +63,7 @@ public class Http1Handler extends SimpleChannelInboundHandler<FullHttpRequest> i
     }
 
     @Override
-    public void writeAndFlush(FullHttpRequest request,FullHttpResponse response) {
+    public void writeAndFlush(FullHttpRequest request,FullHttpResponse response,ChannelHandlerContext ctx) {
 
         if(ctx.isRemoved()){
             logger.error("ctx is removed,can not write response");
