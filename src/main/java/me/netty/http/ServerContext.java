@@ -9,15 +9,23 @@ import me.netty.http.core.session.men.impl.MenSessionReaderWriter;
 import me.netty.http.web.file.StaticFileManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**服务上下文, 提供了在一个程序里启动多个独立上下文服务的能力
  * Created by 1 on 2017/2/25.
  */
 public class ServerContext {
+
+    private static String WELCOME_PAGE = "firstPage";
+    private static String STATIIC_FOLDER = "staticFolder";
+    private static String SACAN_PACKAGE = "packages";
+
     private static Log logger = LogFactory.getLog(ServerContext.class);
     //常量约束
 
@@ -215,5 +223,33 @@ public class ServerContext {
 
     public SessionListener getSessionListener() {
         return sessionListener;
+    }
+
+    /**
+     * 通过配置文件配置
+     * @param path
+     */
+    public void initByPlaceHolder(String path){
+        Properties pro = new Properties();
+        try (
+                FileInputStream in = new FileInputStream("a.properties")
+        ){
+            pro.load(in);
+            this.setStaticFile(pro.getProperty(STATIIC_FOLDER));
+            this.setWelcomePage(pro.getProperty(WELCOME_PAGE));
+
+            String p = pro.getProperty(SACAN_PACKAGE);
+            if (p != null) {
+                String[] packages = p.split(",");
+                for(String s : packages) {
+                    this.addPackage(s);
+                }
+            }
+
+            logger.info("读取配置文件" + path + ".");
+        }catch (Exception e){
+            logger.error(e);
+        }
+
     }
 }
