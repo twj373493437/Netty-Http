@@ -232,7 +232,7 @@ public class ServerContext {
     public void initByPlaceHolder(String path){
         Properties pro = new Properties();
         try (
-                FileInputStream in = new FileInputStream("a.properties")
+                FileInputStream in = new FileInputStream(path)
         ){
             pro.load(in);
             this.setStaticFile(pro.getProperty(STATIIC_FOLDER));
