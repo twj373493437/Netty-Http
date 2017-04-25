@@ -1,13 +1,10 @@
-package twj.test;
+package test;
 
 import io.netty.util.ResourceLeakDetector;
 import me.netty.http.BullsHttp2Server;
 import me.netty.http.ServerContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.io.File;
-import java.net.URL;
 
 /**
  * Hello world!
@@ -33,7 +30,7 @@ public class App {
         serverContext.initByPlaceHolder(path);
 //        serverContext.setWelcomePage("welcome.html");
 //        serverContext.setStaticFile("E:\\development\\netty_http_static_test");
-//        serverContext.addPackage("twj.test");  //扫描的包
+//        serverContext.addPackage("test");  //扫描的包
 
         try {
             bullsHttp2Server.start();

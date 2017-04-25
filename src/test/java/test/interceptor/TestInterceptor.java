@@ -1,4 +1,4 @@
-package twj.test.interceptor;
+package test.interceptor;
 
 import me.netty.http.annnotation.Interceptor;
 import me.netty.http.core.BullInterceptor;

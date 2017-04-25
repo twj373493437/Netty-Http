@@ -1,4 +1,4 @@
-package twj.test.controller;
+package test.controller;
 
 import me.netty.http.annnotation.Controller;
 import me.netty.http.annnotation.Mapping;
