@@ -17,8 +17,10 @@ session(接口化，以便替换其他实现方式) 默认基于本地内存实�
 
 注解的线程池异步调用，防止work线程阻塞，在mapping注解中 isAsyn
 
-todo list
 支持包内的resource作为静态文件
+
+todo list
+添加spring 支持，直接在Controller 中使用注解类注入Spring中的bean
 
 内容压缩 gzip
 
@@ -29,3 +31,7 @@ todo list
 http2 实现和测试
 
 //数据校验 (暂不实现)
+
+
+bug list
+在没找到文件时，应该报404， 而不是 500，  捕捉文件异常时判断一下               OK
