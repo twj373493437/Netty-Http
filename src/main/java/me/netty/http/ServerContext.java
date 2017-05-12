@@ -1,7 +1,7 @@
 package me.netty.http;
 
-import me.netty.http.core.dispatcher.Dispatcher;
 import me.netty.http.core.BullInterceptor;
+import me.netty.http.core.dispatcher.Dispatcher;
 import me.netty.http.core.http.BullsHttpRequest;
 import me.netty.http.core.session.SessionListener;
 import me.netty.http.core.session.SessionReaderWriter;
@@ -10,14 +10,15 @@ import me.netty.http.web.file.StaticFileManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**服务上下文, 提供了在一个程序里启动多个独立上下文服务的能力
+/**
+ * 服务上下文, 提供了在一个程序里启动多个独立上下文服务的能力
  * Created by 1 on 2017/2/25.
  */
 public class ServerContext {
@@ -54,94 +55,100 @@ public class ServerContext {
     //拦截器
     private List<BullInterceptor> bullInterceptors;
 
-    private ServerContext(){
+    private ServerContext() {
         scanPackages = new ArrayList<>();
         bullInterceptors = new ArrayList<>(8);  //一般不会超过8个
     }
 
     /**
      * 添加拦截器
+     *
      * @param bullInterceptor
      */
-    public void addInterceptor(BullInterceptor bullInterceptor){
-        if (bullInterceptor != null){
+    public void addInterceptor(BullInterceptor bullInterceptor) {
+        if (bullInterceptor != null) {
             this.bullInterceptors.add(bullInterceptor);
         }
     }
 
     /**
      * 获取拦截器
+     *
      * @return
      */
-    public List<BullInterceptor> getBullInterceptors(){
+    public List<BullInterceptor> getBullInterceptors() {
         return this.bullInterceptors;
     }
 
-    public Object getAttr(String key){
+    public Object getAttr(String key) {
         return attrs.get(key);
     }
 
-    public void setAttr(String key, Object o){
+    public void setAttr(String key, Object o) {
         attrs.put(key, o);
     }
 
     /**
      * 初始化Context，在Server start的时候会调用，不必手动调用
      */
-    public void initContext(){
-        if(this.scanPackages.size() > 0){
+    public void initContext() {
+        if (this.scanPackages.size() > 0) {
             dispatcher = new Dispatcher(this);
             try {
                 dispatcher.addPackages(this.scanPackages);
             } catch (Exception e) {
-                logger.error("初始化失败",e);
+                logger.error("初始化失败", e);
             }
         }
 
-        if(this.staticFile != null && !this.staticFile.equals( "")){
+        if (this.staticFile != null && !this.staticFile.equals("")) {
             this.staticFileManager = new StaticFileManager(this);
         }
 
         //如果没有指定的 SessionReaderWriter，则用默认的内存实现
-        if (this.sessionReaderWriter == null){
+        if (this.sessionReaderWriter == null) {
             this.sessionReaderWriter = new MenSessionReaderWriter();
         }
     }
 
     /**
      * 利用监听的端口号获取个服务
+     *
      * @param port
      * @return
      */
-    public static ServerContext getServerContext(Integer port){
+    public static ServerContext getServerContext(Integer port) {
         ServerContext context = contexts.get(port);
-        if(context == null){
+        if (context == null) {
             context = new ServerContext();
-            contexts.put(port,context);
+            contexts.put(port, context);
         }
         return context;
     }
 
     /**
      * 利用端口设置context
+     *
      * @param port
      */
-    public static void addServerContext(Integer port){
+    public static void addServerContext(Integer port) {
         contexts.put(port, new ServerContext());
     }
 
     /**
      * 利用request获取
+     *
      * @param request
      * @return
      */
-    public static ServerContext getServerContext(BullsHttpRequest request){
+    public static ServerContext getServerContext(BullsHttpRequest request) {
         int port = request.getPort();
         return ServerContext.getServerContext(port);
     }
 
     /**
      * 获取文件管理器
+     *
      * @return
      */
     public StaticFileManager getStaticFileManager() {
@@ -159,11 +166,11 @@ public class ServerContext {
     /**
      * 添加要扫描的包
      */
-    public ServerContext addPackage(String ... packageName) {
-        if (packageName == null || packageName.length == 0){
+    public ServerContext addPackage(String... packageName) {
+        if (packageName == null || packageName.length == 0) {
             return this;
         }
-        for(String name : packageName){
+        for (String name : packageName) {
             this.scanPackages.add(name);
         }
         return this;
@@ -171,6 +178,7 @@ public class ServerContext {
 
     /**
      * 获取路由器
+     *
      * @return
      */
     public Dispatcher getDispatcher() {
@@ -179,6 +187,7 @@ public class ServerContext {
 
     /**
      * 获取静态文件路径
+     *
      * @return
      */
     public String getStaticFile() {
@@ -187,6 +196,7 @@ public class ServerContext {
 
     /**
      * 设置静态文件路径
+     *
      * @param staticFile
      */
     public ServerContext setStaticFile(String staticFile) {
@@ -196,6 +206,7 @@ public class ServerContext {
 
     /**
      * 设置静态文件路径
+     *
      * @param staticFile
      * @param staticFileCacheSize
      */
@@ -211,9 +222,10 @@ public class ServerContext {
 
     /**
      * 获取Session读写
+     *
      * @return
      */
-    public  SessionReaderWriter getSessionReaderWriter(){
+    public SessionReaderWriter getSessionReaderWriter() {
         return this.sessionReaderWriter;
     }
 
@@ -227,29 +239,27 @@ public class ServerContext {
 
     /**
      * 通过配置文件配置
-     * @param path
+     *
+     * @param path 相对于classpath的位置
      */
-    public void initByPlaceHolder(String path){
+    public void initByConfigFile(String path) throws Exception {
+
+        InputStream inStream = this.getClass().getResourceAsStream(path);
+
         Properties pro = new Properties();
-        try (
-                FileInputStream in = new FileInputStream(path)
-        ){
-            pro.load(in);
-            this.setStaticFile(pro.getProperty(STATIIC_FOLDER));
-            this.setWelcomePage(pro.getProperty(WELCOME_PAGE));
+        pro.load(inStream);
+        this.setStaticFile(pro.getProperty(STATIIC_FOLDER));
+        this.setWelcomePage(pro.getProperty(WELCOME_PAGE));
 
-            String p = pro.getProperty(SACAN_PACKAGE);
-            if (p != null) {
-                String[] packages = p.split(",");
-                for(String s : packages) {
-                    this.addPackage(s);
-                }
+        String p = pro.getProperty(SACAN_PACKAGE);
+        if (p != null) {
+            String[] packages = p.split(",");
+            for (String s : packages) {
+                this.addPackage(s);
             }
-
-            logger.info("读取配置文件" + path + ".");
-        }catch (Exception e){
-            logger.error(e);
         }
+
+        logger.info("读取配置文件" + path + ".");
 
     }
 }

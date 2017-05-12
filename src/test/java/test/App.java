@@ -6,6 +6,8 @@ import me.netty.http.ServerContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.net.URL;
+
 /**
  * Hello world!
  */
@@ -21,22 +23,14 @@ public class App {
         BullsHttp2Server bullsHttp2Server = new BullsHttp2Server(8081, false);   //SSL暂时不可用
         ServerContext serverContext = bullsHttp2Server.getServerContext();
 
-        String path = System.getProperty("user.dir");
-
-        //for test
-        path += "\\target\\classes\\server.properties";
-        logger.debug(path);
-
-        serverContext.initByPlaceHolder(path);
-//        serverContext.setWelcomePage("welcome.html");
-//        serverContext.setStaticFile("E:\\development\\netty_http_static_test");
-//        serverContext.addPackage("test");  //扫描的包
-
+        String config = "/server.properties";
+        URL path = App.class.getResource(config);
+        logger.debug(path.toString());
         try {
+            serverContext.initByConfigFile(config);
             bullsHttp2Server.start();
         } catch (Exception e) {
             logger.error("出现了异常", e);
-            e.printStackTrace();
         }
     }
 }
