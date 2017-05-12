@@ -1,8 +1,8 @@
 package me.netty.http.core.session;
 
 import me.netty.http.ServerContext;
-import me.netty.http.core.http.BullsHttpRequest;
-import me.netty.http.core.http.BullsHttpResponse;
+import me.netty.http.core.http.ServerHttpRequest;
+import me.netty.http.core.http.ServerHttpResponse;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 
@@ -13,7 +13,7 @@ import java.util.Date;
  */
 public class SessionUtils {
 
-    public static HttpSession getNewSession(BullsHttpRequest request, BullsHttpResponse response){
+    public static HttpSession getNewSession(ServerHttpRequest request, ServerHttpResponse response){
         ServerContext serverContext = ServerContext.getServerContext(request);
 
         //TODO  获取UUID的 字串

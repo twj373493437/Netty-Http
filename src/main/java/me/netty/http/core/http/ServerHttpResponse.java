@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by 1 on 2017/3/7.
  */
-public interface BullsHttpResponse extends FullHttpResponse {
+public interface ServerHttpResponse extends FullHttpResponse {
 
     /**
      * 设置Cookie

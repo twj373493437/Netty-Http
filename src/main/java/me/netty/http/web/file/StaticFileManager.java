@@ -1,12 +1,15 @@
 package me.netty.http.web.file;
 
+import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
+import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 import me.netty.http.ServerContext;
 import me.netty.http.core.MainProcessor;
-import me.netty.http.core.http.BullsHttpRequest;
-import me.netty.http.core.http.BullsHttpResponse;
+import me.netty.http.core.http.ServerHttpRequest;
+import me.netty.http.core.http.ServerHttpResponse;
 import me.netty.http.web.file.cache.LruCache;
 import io.netty.buffer.ByteBuf;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -27,6 +30,7 @@ public class StaticFileManager {
 
     private static Log logger = LogFactory.getLog(StaticFileManager.class);
     private static final int DEFAULT_CAPACITY = 128;
+    private static final String CLASS_PATH = "classpath:";
 
     private ServerContext serverContext;
     private LruCache<String, byte[]> cache;
@@ -47,7 +51,7 @@ public class StaticFileManager {
     private byte[] getBytesFromFile(String filePath) throws Exception{
         byte[] fileBytes;
 
-        if (serverContext.getStaticFile() == null || serverContext.getStaticFile().equals("")){
+        if (serverContext.getStaticDir() == null || serverContext.getStaticDir().equals("")){
             logger.info("没有指定静态文件目录");
             return null;
         }
@@ -61,12 +65,19 @@ public class StaticFileManager {
 //            }
 //        }
 
-        File file = new File(serverContext.getStaticFile() + filePath);
-        if(!file.exists() || file.isDirectory()){
-           return null;
+        //包里面的文件
+        if (serverContext.getStaticDir().startsWith(CLASS_PATH)){
+            String dir = serverContext.getStaticDir().substring(CLASS_PATH.length());
+            filePath = dir + "/" + filePath;
+            InputStream inputStream = ClassLoader.getSystemResourceAsStream(filePath);
+            fileBytes = IOUtils.toByteArray(inputStream);
+        }else{
+            File file = new File(serverContext.getStaticDir() + filePath);
+            if(!file.exists() || file.isDirectory()){
+                return null;
+            }
+            fileBytes = FileUtils.readFileToByteArray(file);
         }
-
-        fileBytes = FileUtils.readFileToByteArray(file);
 
 //        if (cache != null){
 //            cache.put(filePath, fileBytes);
@@ -81,7 +92,7 @@ public class StaticFileManager {
      * @param request
      * @return
      */
-    public boolean getStaticFile(BullsHttpRequest request, BullsHttpResponse response, MainProcessor mainProcessor){
+    public boolean getStaticFile(ServerHttpRequest request, ServerHttpResponse response, MainProcessor mainProcessor){
         ByteBuf content = response.content();
 
         String path = request.getRequestPath();

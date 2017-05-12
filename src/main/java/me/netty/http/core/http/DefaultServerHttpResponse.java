@@ -15,36 +15,36 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 /**
  * Created by 1 on 2017/2/26.
  */
-public class DefaultBullsHttpResponse extends DefaultFullHttpResponse implements BullsHttpResponse{
+public class DefaultServerHttpResponse extends DefaultFullHttpResponse implements ServerHttpResponse {
 
     private List<Cookie> cookies;
 
     //Construct
-    public DefaultBullsHttpResponse(HttpVersion version, HttpResponseStatus status) {
+    public DefaultServerHttpResponse(HttpVersion version, HttpResponseStatus status) {
         super(version, status);
     }
 
-    public DefaultBullsHttpResponse(HttpVersion version, HttpResponseStatus status, ByteBuf content) {
+    public DefaultServerHttpResponse(HttpVersion version, HttpResponseStatus status, ByteBuf content) {
         super(version, status, content);
     }
 
-    public DefaultBullsHttpResponse(HttpVersion version, HttpResponseStatus status, boolean validateHeaders) {
+    public DefaultServerHttpResponse(HttpVersion version, HttpResponseStatus status, boolean validateHeaders) {
         super(version, status, validateHeaders);
     }
 
-    public DefaultBullsHttpResponse(HttpVersion version, HttpResponseStatus status, boolean validateHeaders, boolean singleFieldHeaders) {
+    public DefaultServerHttpResponse(HttpVersion version, HttpResponseStatus status, boolean validateHeaders, boolean singleFieldHeaders) {
         super(version, status, validateHeaders, singleFieldHeaders);
     }
 
-    public DefaultBullsHttpResponse(HttpVersion version, HttpResponseStatus status, ByteBuf content, boolean validateHeaders) {
+    public DefaultServerHttpResponse(HttpVersion version, HttpResponseStatus status, ByteBuf content, boolean validateHeaders) {
         super(version, status, content, validateHeaders);
     }
 
-    public DefaultBullsHttpResponse(HttpVersion version, HttpResponseStatus status, ByteBuf content, boolean validateHeaders, boolean singleFieldHeaders) {
+    public DefaultServerHttpResponse(HttpVersion version, HttpResponseStatus status, ByteBuf content, boolean validateHeaders, boolean singleFieldHeaders) {
         super(version, status, content, validateHeaders, singleFieldHeaders);
     }
 
-    public DefaultBullsHttpResponse(HttpVersion version, HttpResponseStatus status, ByteBuf content, HttpHeaders headers, HttpHeaders trailingHeaders) {
+    public DefaultServerHttpResponse(HttpVersion version, HttpResponseStatus status, ByteBuf content, HttpHeaders headers, HttpHeaders trailingHeaders) {
         super(version, status, content, headers, trailingHeaders);
     }
 

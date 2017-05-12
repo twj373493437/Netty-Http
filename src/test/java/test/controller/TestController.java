@@ -2,7 +2,7 @@ package test.controller;
 
 import me.netty.http.annnotation.Controller;
 import me.netty.http.annnotation.Mapping;
-import me.netty.http.core.http.BullsHttpRequest;
+import me.netty.http.core.http.ServerHttpRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -20,7 +20,7 @@ public class TestController {
      * @return
      */
     @Mapping(value = "hello/bulls")
-    public String test(BullsHttpRequest request){
+    public String test(ServerHttpRequest request){
 
         if (request == null){
             logger.error("request not init");
@@ -35,7 +35,7 @@ public class TestController {
      * @return
      */
     @Mapping(value = "hello/bulls1", isAsyn = true)
-    public String test1(BullsHttpRequest request){
+    public String test1(ServerHttpRequest request){
 
         if (request == null){
             logger.error("request not init");

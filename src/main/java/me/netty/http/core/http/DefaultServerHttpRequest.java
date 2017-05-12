@@ -18,9 +18,9 @@ import java.util.*;
  * 参数和一些请求数据 以 需要时获取为原则实现
  * Created by 1 on 2017/2/26.
  */
-public class DefaultBullsHttpRequest extends DefaultFullHttpRequest implements BullsHttpRequest{
+public class DefaultServerHttpRequest extends DefaultFullHttpRequest implements ServerHttpRequest {
 
-    private static Log logger = LogFactory.getLog(DefaultBullsHttpRequest.class);
+    private static Log logger = LogFactory.getLog(DefaultServerHttpRequest.class);
 
     //请求参数
     private Map<String, String> params;
@@ -31,18 +31,18 @@ public class DefaultBullsHttpRequest extends DefaultFullHttpRequest implements B
 
     private Map<String,Cookie> cookies;
 
-    private BullsHttpResponse response;
+    private ServerHttpResponse response;
 
     private int port;
 
     //Constructor
-    public DefaultBullsHttpRequest(FullHttpRequest request) {
+    public DefaultServerHttpRequest(FullHttpRequest request) {
         super(request.protocolVersion(), request.method(), request.uri(), request.content(), request.headers(), request.trailingHeaders());
         attrs = new LinkedHashMap<>();
         this.port = 0;
     }
 
-    public DefaultBullsHttpRequest(FullHttpRequest request, BullsHttpResponse response) {
+    public DefaultServerHttpRequest(FullHttpRequest request, ServerHttpResponse response) {
         this(request);
         this.response = response;
     }

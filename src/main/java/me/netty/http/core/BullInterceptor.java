@@ -1,7 +1,7 @@
 package me.netty.http.core;
 
-import me.netty.http.core.http.BullsHttpRequest;
-import me.netty.http.core.http.BullsHttpResponse;
+import me.netty.http.core.http.ServerHttpRequest;
+import me.netty.http.core.http.ServerHttpResponse;
 
 /**
  * Created by 1 on 2017/3/13.
@@ -14,7 +14,7 @@ public interface BullInterceptor {
      * @param response
      * @return
      */
-    boolean beforeHandle(BullsHttpRequest request, BullsHttpResponse response);
+    boolean beforeHandle(ServerHttpRequest request, ServerHttpResponse response);
 
     /**
      * 处理之后调用，哦也
@@ -22,7 +22,7 @@ public interface BullInterceptor {
      * @param response
      * @return
      */
-    void AfterHandle(BullsHttpRequest request, BullsHttpResponse response);
+    void AfterHandle(ServerHttpRequest request, ServerHttpResponse response);
 
     /**
      * 异常处理
@@ -30,5 +30,5 @@ public interface BullInterceptor {
      * @param response
      * @param e
      */
-    void onException(BullsHttpRequest request, BullsHttpResponse response, Exception e);
+    void onException(ServerHttpRequest request, ServerHttpResponse response, Exception e);
 }

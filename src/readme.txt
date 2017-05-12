@@ -18,6 +18,10 @@ session(接口化，以便替换其他实现方式) 默认基于本地内存实�
 注解的线程池异步调用，防止work线程阻塞，在mapping注解中 isAsyn
 
 todo list
+支持包内的resource作为静态文件
+
+内容压缩 gzip
+
 //websocket 的支持(暂时不实现)
 
 //MVC(基于freemarker)(暂不实现)
@@ -25,5 +29,3 @@ todo list
 http2 实现和测试
 
 //数据校验 (暂不实现)
-
-内容压缩 gzip

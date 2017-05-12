@@ -2,15 +2,14 @@ package me.netty.http.core;
 
 import io.netty.channel.ChannelHandlerContext;
 import me.netty.http.ServerContext;
-import me.netty.http.core.http.BullsHttpRequest;
-import me.netty.http.core.http.BullsHttpResponse;
+import me.netty.http.core.http.ServerHttpRequest;
+import me.netty.http.core.http.ServerHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 
@@ -19,15 +18,15 @@ import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
  *
  * Created by 1 on 2017/3/21.
  */
-public class BullsMainProcessor implements MainProcessor{
-    private static Log logger = LogFactory.getLog(BullsMainProcessor.class);
+public class ServerMainProcessor implements MainProcessor{
+    private static Log logger = LogFactory.getLog(ServerMainProcessor.class);
 
     private HttpHandler httpHandler;
-    private BullsHttpResponse response;
-    private BullsHttpRequest request;
+    private ServerHttpResponse response;
+    private ServerHttpRequest request;
     private ChannelHandlerContext ctx;  //这里保存ctx
 
-    public BullsMainProcessor(HttpHandler httpHandler, BullsHttpRequest request, BullsHttpResponse response, ChannelHandlerContext ctx){
+    public ServerMainProcessor(HttpHandler httpHandler, ServerHttpRequest request, ServerHttpResponse response, ChannelHandlerContext ctx){
         this.httpHandler = httpHandler;
         this.request = request;
         this.response = response;
@@ -35,7 +34,7 @@ public class BullsMainProcessor implements MainProcessor{
     }
 
     @Override
-    public void process(BullsHttpRequest request, BullsHttpResponse response){
+    public void process(ServerHttpRequest request, ServerHttpResponse response){
         ServerContext serverContext = ServerContext.getServerContext(request);
         List<BullInterceptor> list =serverContext.getBullInterceptors();
 
@@ -71,10 +70,8 @@ public class BullsMainProcessor implements MainProcessor{
             logger.info("出现了一个错误", e);
             //异常拦截
             for (BullInterceptor bullInterceptor : list) {
-
                 bullInterceptor.onException(request, response, e);
                 this.sendResponse();
-
             }
         }
     }
@@ -105,12 +102,12 @@ public class BullsMainProcessor implements MainProcessor{
     }
 
     @Override
-    public BullsHttpResponse getResponse() {
+    public ServerHttpResponse getResponse() {
         return this.response;
     }
 
     @Override
-    public BullsHttpRequest getRequest() {
+    public ServerHttpRequest getRequest() {
         return this.request;
     }
 }

@@ -36,17 +36,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- *
+ *http服务
  */
-public final class BullsHttp2Server {
+public final class HttpServer {
 
-    private static Log logger = LogFactory.getLog(BullsHttp2Server.class);
+    private static Log logger = LogFactory.getLog(HttpServer.class);
 
     private boolean SSL;
     private int PORT;
     private ServerContext serverContext;
 
-    public BullsHttp2Server(int port, boolean ssl) {
+    public HttpServer(int port, boolean ssl) {
         this.PORT = port;
         this.SSL = ssl;
 

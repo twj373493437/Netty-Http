@@ -1,7 +1,7 @@
 package test;
 
 import io.netty.util.ResourceLeakDetector;
-import me.netty.http.BullsHttp2Server;
+import me.netty.http.HttpServer;
 import me.netty.http.ServerContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,15 +20,15 @@ public class App {
         ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.SIMPLE);
         //ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
 
-        BullsHttp2Server bullsHttp2Server = new BullsHttp2Server(8081, false);   //SSL暂时不可用
-        ServerContext serverContext = bullsHttp2Server.getServerContext();
+        HttpServer httpServer = new HttpServer(8081, false);   //SSL暂时不可用
+        ServerContext serverContext = httpServer.getServerContext();
 
         String config = "/server.properties";
         URL path = App.class.getResource(config);
         logger.debug(path.toString());
         try {
             serverContext.initByConfigFile(config);
-            bullsHttp2Server.start();
+            httpServer.start();
         } catch (Exception e) {
             logger.error("出现了异常", e);
         }

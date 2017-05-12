@@ -9,8 +9,8 @@ import me.netty.http.annnotation.RequestParams;
 import me.netty.http.core.BullInterceptor;
 import me.netty.http.core.MainProcessor;
 import me.netty.http.core.asyn.ProcessRunnable;
-import me.netty.http.core.http.BullsHttpRequest;
-import me.netty.http.core.http.BullsHttpResponse;
+import me.netty.http.core.http.ServerHttpRequest;
+import me.netty.http.core.http.ServerHttpResponse;
 import me.netty.http.utils.MyClassUtils;
 import io.netty.buffer.ByteBufUtil;
 import org.apache.commons.beanutils.BeanUtils;
@@ -127,7 +127,7 @@ public class Dispatcher {
      * @param request
      * @return boolean 是否处理
      */
-    public boolean doService(BullsHttpRequest request, BullsHttpResponse response, MainProcessor mainProcessor){
+    public boolean doService(ServerHttpRequest request, ServerHttpResponse response, MainProcessor mainProcessor){
 
         String path = request.getRequestPath();
 
@@ -217,16 +217,16 @@ public class Dispatcher {
      * @param request
      * @return
      */
-    private  Object[] bindParams(Parameter[] parameters, BullsHttpRequest request, BullsHttpResponse response){
+    private  Object[] bindParams(Parameter[] parameters, ServerHttpRequest request, ServerHttpResponse response){
         Object[] params = new Object[parameters.length];
 
         for(int i = 0; i < parameters.length; i++){
             Class clazz = parameters[i].getType();
 
             //绑定系统赋予的对象，如request,request 和 封装的参数
-            if (clazz.equals(BullsHttpRequest.class)){
+            if (clazz.equals(ServerHttpRequest.class)){
                 params[i] = request;
-            }else if(clazz.equals(BullsHttpResponse.class)){
+            }else if(clazz.equals(ServerHttpResponse.class)){
                 params[i] = response;
             } else if(parameters[i].getAnnotation(RequestParams.class) != null){
                 params[i] = this.bindObject(clazz, request, parameters[i].getAnnotation(RequestParams.class).isValidate());
@@ -253,7 +253,7 @@ public class Dispatcher {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    private Object bind(String name, Class clazz, BullsHttpRequest request) throws IllegalAccessException, InstantiationException {
+    private Object bind(String name, Class clazz, ServerHttpRequest request) throws IllegalAccessException, InstantiationException {
 
         String value = request.getPram(name);
         if (value == null || value.equals("")){
@@ -279,7 +279,7 @@ public class Dispatcher {
      * @param check
      * @return
      */
-    private Object bindObject(Class clazz, BullsHttpRequest request, boolean check){
+    private Object bindObject(Class clazz, ServerHttpRequest request, boolean check){
         try {
             Object object = clazz.newInstance();
             Field[] fields = clazz.getDeclaredFields();

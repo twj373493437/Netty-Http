@@ -2,7 +2,7 @@ package me.netty.http;
 
 import me.netty.http.core.BullInterceptor;
 import me.netty.http.core.dispatcher.Dispatcher;
-import me.netty.http.core.http.BullsHttpRequest;
+import me.netty.http.core.http.ServerHttpRequest;
 import me.netty.http.core.session.SessionListener;
 import me.netty.http.core.session.SessionReaderWriter;
 import me.netty.http.core.session.men.impl.MenSessionReaderWriter;
@@ -38,7 +38,7 @@ public class ServerContext {
 
     //静态文件处理
     private StaticFileManager staticFileManager;  //静态文件
-    private String staticFile;
+    private String staticDir;
     private String welcomePage;
     private int staticFileCacheSize;
 
@@ -101,7 +101,7 @@ public class ServerContext {
             }
         }
 
-        if (this.staticFile != null && !this.staticFile.equals("")) {
+        if (this.staticDir != null && !this.staticDir.equals("")) {
             this.staticFileManager = new StaticFileManager(this);
         }
 
@@ -141,7 +141,7 @@ public class ServerContext {
      * @param request
      * @return
      */
-    public static ServerContext getServerContext(BullsHttpRequest request) {
+    public static ServerContext getServerContext(ServerHttpRequest request) {
         int port = request.getPort();
         return ServerContext.getServerContext(port);
     }
@@ -190,17 +190,17 @@ public class ServerContext {
      *
      * @return
      */
-    public String getStaticFile() {
-        return staticFile;
+    public String getStaticDir() {
+        return staticDir;
     }
 
     /**
      * 设置静态文件路径
      *
-     * @param staticFile
+     * @param staticDir
      */
-    public ServerContext setStaticFile(String staticFile) {
-        this.staticFile = staticFile;
+    public ServerContext setStaticDir(String staticDir) {
+        this.staticDir = staticDir;
         return this;
     }
 
@@ -211,7 +211,7 @@ public class ServerContext {
      * @param staticFileCacheSize
      */
     public ServerContext setStaticFile(String staticFile, int staticFileCacheSize) {
-        this.staticFile = staticFile;
+        this.staticDir = staticFile;
         this.staticFileCacheSize = staticFileCacheSize;
         return this;
     }
@@ -248,7 +248,7 @@ public class ServerContext {
 
         Properties pro = new Properties();
         pro.load(inStream);
-        this.setStaticFile(pro.getProperty(STATIIC_FOLDER));
+        this.setStaticDir(pro.getProperty(STATIIC_FOLDER));
         this.setWelcomePage(pro.getProperty(WELCOME_PAGE));
 
         String p = pro.getProperty(SACAN_PACKAGE);

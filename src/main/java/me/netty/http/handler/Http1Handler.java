@@ -2,7 +2,7 @@
 package me.netty.http.handler;
 
 import io.netty.channel.ChannelHandler;
-import me.netty.http.core.BullsMainProcessor;
+import me.netty.http.core.ServerMainProcessor;
 import me.netty.http.core.HttpHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
@@ -10,10 +10,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import me.netty.http.core.MainProcessor;
-import me.netty.http.core.http.BullsHttpRequest;
-import me.netty.http.core.http.BullsHttpResponse;
-import me.netty.http.core.http.DefaultBullsHttpRequest;
-import me.netty.http.core.http.DefaultBullsHttpResponse;
+import me.netty.http.core.http.ServerHttpRequest;
+import me.netty.http.core.http.ServerHttpResponse;
+import me.netty.http.core.http.DefaultServerHttpRequest;
+import me.netty.http.core.http.DefaultServerHttpResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -43,16 +43,16 @@ public class Http1Handler extends SimpleChannelInboundHandler<FullHttpRequest> i
         //获取内存空间
         ByteBuf content = ctx.alloc().buffer();
 
-        BullsHttpRequest request = new DefaultBullsHttpRequest(req);
-        BullsHttpResponse response= new DefaultBullsHttpResponse(HTTP_1_1, OK, content);
+        ServerHttpRequest request = new DefaultServerHttpRequest(req);
+        ServerHttpResponse response= new DefaultServerHttpResponse(HTTP_1_1, OK, content);
         if (HttpUtil.is100ContinueExpected(req)) {
-            response = new DefaultBullsHttpResponse(HTTP_1_1, CONTINUE);
+            response = new DefaultServerHttpResponse(HTTP_1_1, CONTINUE);
             this.writeAndFlush(req, response, ctx);
             return;
         }
 
         //初始化MainProcessor
-        MainProcessor processor = new BullsMainProcessor(this, request, response, ctx);
+        MainProcessor processor = new ServerMainProcessor(this, request, response, ctx);
         processor.process(request,response);
     }
 

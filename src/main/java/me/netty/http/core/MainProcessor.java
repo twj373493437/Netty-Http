@@ -1,7 +1,7 @@
 package me.netty.http.core;
 
-import me.netty.http.core.http.BullsHttpRequest;
-import me.netty.http.core.http.BullsHttpResponse;
+import me.netty.http.core.http.ServerHttpRequest;
+import me.netty.http.core.http.ServerHttpResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -18,7 +18,7 @@ public interface MainProcessor {
     /**
      * 处理，不应当负责写入被托管了方法的处理结果
      */
-    void process(BullsHttpRequest request, BullsHttpResponse response);
+    void process(ServerHttpRequest request, ServerHttpResponse response);
 
     /**
      * 处理好了
@@ -31,7 +31,7 @@ public interface MainProcessor {
      * @param request
      * @param status
      */
-    static void productSimpleResponse(BullsHttpResponse response, BullsHttpRequest request, HttpResponseStatus status, String message){
+    static void productSimpleResponse(ServerHttpResponse response, ServerHttpRequest request, HttpResponseStatus status, String message){
         ByteBuf content = response.content();
         if(message == null){
             message = status.reasonPhrase();
@@ -47,11 +47,11 @@ public interface MainProcessor {
      * 获取response
      * @return
      */
-    BullsHttpResponse getResponse();
+    ServerHttpResponse getResponse();
 
     /**
      * 获取request
      * @return
      */
-    BullsHttpRequest getRequest();
+    ServerHttpRequest getRequest();
 }
