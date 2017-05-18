@@ -32,6 +32,7 @@ import io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import me.netty.http.core.ServerContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

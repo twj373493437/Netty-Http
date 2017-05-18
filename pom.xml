@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>twj</groupId>
-  <artifactId>qianyan-app</artifactId>
+  <artifactId>m.netty.http</artifactId>
   <version>1.0-SNAPSHOT</version>
     <build>
         <plugins>
@@ -11,15 +11,15 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>
     </build>
     <packaging>jar</packaging>
 
-  <name>qianyan-app</name>
+  <name>m.netty.http</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -27,7 +27,13 @@
   </properties>
 
   <dependencies>
-    <dependency>
+      <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+      <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+          <version>3.5</version>
+      </dependency>
+      <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
@@ -73,6 +79,11 @@
           <groupId>commons-beanutils</groupId>
           <artifactId>commons-beanutils</artifactId>
           <version>1.9.3</version>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-context</artifactId>
+          <version>4.2.5.RELEASE</version>
       </dependency>
 
   </dependencies>

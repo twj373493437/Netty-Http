@@ -2,7 +2,7 @@ package test;
 
 import io.netty.util.ResourceLeakDetector;
 import me.netty.http.HttpServer;
-import me.netty.http.ServerContext;
+import me.netty.http.core.ServerContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

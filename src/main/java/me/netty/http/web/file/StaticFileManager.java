@@ -1,7 +1,7 @@
 package me.netty.http.web.file;
 
 import io.netty.buffer.ByteBuf;
-import me.netty.http.ServerContext;
+import me.netty.http.core.ServerContext;
 import me.netty.http.core.MainProcessor;
 import me.netty.http.core.http.ServerHttpRequest;
 import me.netty.http.core.http.ServerHttpResponse;
@@ -13,7 +13,6 @@ import org.apache.commons.logging.LogFactory;
 
 import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;

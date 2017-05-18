@@ -1,11 +1,8 @@
 package me.netty.http.core.dispatcher;
 
 import io.netty.buffer.ByteBuf;
-import me.netty.http.ServerContext;
-import me.netty.http.annnotation.Controller;
-import me.netty.http.annnotation.Interceptor;
-import me.netty.http.annnotation.Mapping;
-import me.netty.http.annnotation.RequestParams;
+import me.netty.http.annnotation.*;
+import me.netty.http.core.ServerContext;
 import me.netty.http.core.BullInterceptor;
 import me.netty.http.core.MainProcessor;
 import me.netty.http.core.asyn.ProcessRunnable;
@@ -13,7 +10,9 @@ import me.netty.http.core.http.ServerHttpRequest;
 import me.netty.http.core.http.ServerHttpResponse;
 import me.netty.http.utils.MyClassUtils;
 import io.netty.buffer.ByteBufUtil;
+import me.netty.http.utils.ReflectionUtils;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -42,7 +41,7 @@ public class Dispatcher {
 
     private Map<String, Function> functionMap;
     private ServerContext serverContext;
-    private ExecutorService executorService;
+    private ExecutorService executorService;  //线程池
 
     public Dispatcher(ServerContext serverContext){
         this.functionMap = new ConcurrentHashMap<>(128);
@@ -76,8 +75,11 @@ public class Dispatcher {
                 Controller controller = (Controller) c.getAnnotation(Controller.class);
                 if (controller != null){
                     Method[] methods = c.getDeclaredMethods();
-
                     Object o = c.newInstance();
+
+                    //注入spring的Bean
+                    this.initFieldFromSpringBean(o);
+
                     for (Method method : methods){
                         Mapping mapping = method.getAnnotation(Mapping.class);
                         if (mapping == null){
@@ -94,7 +96,6 @@ public class Dispatcher {
                         if (!value.startsWith("/")){
                             value = "/" + value;
                         }
-
                         //保存
                         Function function = new Function(o, mapping.method(), method, mapping.isAsyn());
                         functionMap.put(value, function);
@@ -294,13 +295,46 @@ public class Dispatcher {
                 }
             }
             return object;
-        } catch (InstantiationException e) {
-            logger.error(e);
-        } catch (IllegalAccessException e) {
-            logger.error(e);
-        }catch (Exception e){
+        } catch (Exception e){
             logger.error(e);
         }
         return null;
+    }
+
+    /**
+     * 注入Spring的Bean
+     * @param target
+     */
+    public void initFieldFromSpringBean(Object target){
+        if (serverContext.getSpringContext() == null){
+            return;
+        }
+
+        Field[] fields = target.getClass().getDeclaredFields();
+        if (fields == null || fields.length == 0){
+            return;
+        }
+
+        for (Field field : fields){
+            Object bean = null;
+
+            SpringBean beanAnnotation = field.getAnnotation(SpringBean.class);
+            if (beanAnnotation == null){
+                continue;
+            }
+
+            if (StringUtils.isNotEmpty(beanAnnotation.value())){
+                bean = serverContext.getSpringContext().getBean(beanAnnotation.value());
+            }else{
+                bean = serverContext.getSpringContext().getBean(field.getType());
+            }
+            try {
+                ReflectionUtils.setValueByFieldName(target, field.getName(), bean);
+            } catch (NoSuchFieldException  | IllegalAccessException e) {
+                logger.error("注入spring的Bean失败", e);
+                //throw new RuntimeException("注入spring的Bean失败");
+            }
+
+        }
     }
 }

@@ -1,7 +1,6 @@
 package me.netty.http.core;
 
 import io.netty.channel.ChannelHandlerContext;
-import me.netty.http.ServerContext;
 import me.netty.http.core.http.ServerHttpRequest;
 import me.netty.http.core.http.ServerHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;

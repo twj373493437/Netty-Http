@@ -1,6 +1,5 @@
-package me.netty.http;
+package me.netty.http.core;
 
-import me.netty.http.core.BullInterceptor;
 import me.netty.http.core.dispatcher.Dispatcher;
 import me.netty.http.core.http.ServerHttpRequest;
 import me.netty.http.core.session.SessionListener;
@@ -9,6 +8,7 @@ import me.netty.http.core.session.men.impl.MenSessionReaderWriter;
 import me.netty.http.web.file.StaticFileManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationContext;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -23,11 +23,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ServerContext {
 
-    private static String WELCOME_PAGE = "firstPage";
-    private static String STATIIC_FOLDER = "staticFolder";
-    private static String SACAN_PACKAGE = "packages";
+    private static final String WELCOME_PAGE = "firstPage";
+    private static final   String STATIC_FOLDER = "staticFolder";
+    private static final String SCAN_PACKAGE = "packages";
 
-    private static Log logger = LogFactory.getLog(ServerContext.class);
+    private static final Log logger = LogFactory.getLog(ServerContext.class);
     //常量约束
 
     //Context map,以支持多个server,同时又能在其他类中获取Context
@@ -54,6 +54,9 @@ public class ServerContext {
 
     //拦截器
     private List<BullInterceptor> bullInterceptors;
+
+    //spring Context支持
+    private ApplicationContext springContext;
 
     private ServerContext() {
         scanPackages = new ArrayList<>();
@@ -248,10 +251,10 @@ public class ServerContext {
 
         Properties pro = new Properties();
         pro.load(inStream);
-        this.setStaticDir(pro.getProperty(STATIIC_FOLDER));
+        this.setStaticDir(pro.getProperty(STATIC_FOLDER));
         this.setWelcomePage(pro.getProperty(WELCOME_PAGE));
 
-        String p = pro.getProperty(SACAN_PACKAGE);
+        String p = pro.getProperty(SCAN_PACKAGE);
         if (p != null) {
             String[] packages = p.split(",");
             for (String s : packages) {
@@ -261,5 +264,13 @@ public class ServerContext {
 
         logger.info("读取配置文件" + path + ".");
 
+    }
+
+    public void setSpringContext(ApplicationContext springContext) {
+        this.springContext = springContext;
+    }
+
+    public ApplicationContext getSpringContext() {
+        return springContext;
     }
 }
