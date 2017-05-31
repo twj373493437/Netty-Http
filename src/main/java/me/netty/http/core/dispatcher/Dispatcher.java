@@ -320,6 +320,9 @@ public class Dispatcher {
 
             SpringBean beanAnnotation = field.getAnnotation(SpringBean.class);
             if (beanAnnotation == null){
+                if (logger.isDebugEnabled()) {
+                    logger.debug("找到了field但是没有注解:" + field.getName());
+                }
                 continue;
             }
 
@@ -330,6 +333,9 @@ public class Dispatcher {
             }
             try {
                 ReflectionUtils.setValueByFieldName(target, field.getName(), bean);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("注入bean：" + bean.getClass().getName() + "->>" + target.getClass().getName());
+                }
             } catch (NoSuchFieldException  | IllegalAccessException e) {
                 logger.error("注入spring的Bean失败", e);
                 //throw new RuntimeException("注入spring的Bean失败");
