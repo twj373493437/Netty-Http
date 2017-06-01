@@ -37,7 +37,7 @@ public class Function {
         try {
             this.proxy = this.getMethodProxy(method, obj);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("获取运行对象时发生错误", e);
         }
     }
 
@@ -80,7 +80,7 @@ public class Function {
         StringBuilder codeBuilder = new StringBuilder();
         codeBuilder.append("public Object doMethod( Object[] params, Object object){");
 
-        //初始化参数
+        //初始化参数（分开声明）
         Parameter[] parameters = method.getParameters();
         for (int j = 0; j < parameters.length; j++) {
             codeBuilder.append(parameters[j].getType().getName() +  " var" + j + " = params["+ j +"];");
