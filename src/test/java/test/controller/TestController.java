@@ -25,7 +25,7 @@ public class TestController {
         if (request == null){
             logger.error("request not init");
         }
-
+        logger.debug("you are in the test method");
         return "hello bulls! " + request.getPram("name");
     }
 

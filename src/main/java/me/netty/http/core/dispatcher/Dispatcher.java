@@ -79,28 +79,8 @@ public class Dispatcher {
 
                     //注入spring的Bean
                     this.initFieldFromSpringBean(o);
-
-                    for (Method method : methods){
-                        Mapping mapping = method.getAnnotation(Mapping.class);
-                        if (mapping == null){
-                            continue;
-                        }
-
-                        String value = mapping.value();
-                        if (functionMap.get(value) != null){
-                            logger.error("重复的请求路径，请检查");
-                            throw new RuntimeException("重复的请求路径，请检查");
-                        }
-
-                        //在value前加上/
-                        if (!value.startsWith("/")){
-                            value = "/" + value;
-                        }
-                        //保存
-                        Function function = new Function(o, mapping.method(), method, mapping.isAsyn());
-                        functionMap.put(value, function);
-                        logger.debug("add function : " + value);
-                    }
+                    //处理保存接口的定义
+                    this.bindMethod(methods, o);
                 }
 
                 //寻找拦截器
@@ -110,6 +90,35 @@ public class Dispatcher {
                     this.serverContext.addInterceptor((BullInterceptor) c.newInstance());
                 }
             }
+        }
+    }
+
+    /**
+     * 处理Controller定义的接口
+     * @param methods
+     * @param target
+     */
+    private void bindMethod(Method[] methods, Object target){
+        for (Method method : methods){
+            Mapping mapping = method.getAnnotation(Mapping.class);
+            if (mapping == null){
+                continue;
+            }
+
+            String value = mapping.value();
+            if (functionMap.get(value) != null){
+                logger.error("重复的请求路径，请检查");
+                throw new RuntimeException("重复的请求路径，请检查");
+            }
+
+            //在value前加上/
+            if (!value.startsWith("/")){
+                value = "/" + value;
+            }
+            //保存
+            Function function = new Function(target, mapping.method(), method, mapping.isAsyn());
+            functionMap.put(value, function);
+            logger.debug("add function : " + value);
         }
     }
 
@@ -174,18 +183,9 @@ public class Dispatcher {
      */
     public void doMethod(MainProcessor mainProcessor, Function function){
         //处理
-        Method method = function.getMethod();
         Object res;
         try {
-            Parameter[] parameters = method.getParameters();
-            if (parameters == null || parameters.length == 0){
-                res = method.invoke(function.getControllerObject());
-            }else{
-                //绑定参数
-                Object[] params = this.bindParams(parameters, mainProcessor.getRequest(), mainProcessor.getResponse());
-                res = method.invoke(function.getControllerObject(), params);
-            }
-
+            res = function.doMethod(mainProcessor);
             //构造返回响应对象
             if(res instanceof String){
                 ByteBufUtil.writeUtf8(mainProcessor.getResponse().content(), (String)res);
@@ -197,108 +197,12 @@ public class Dispatcher {
             mainProcessor.getResponse().headers().setInt(CONTENT_LENGTH, mainProcessor.getResponse().content().readableBytes());
             mainProcessor.sendResponse();
             return;
-        } catch (IllegalAccessException e) {
-            logger.error("处理失败！", e);
-            MainProcessor.productSimpleResponse(mainProcessor.getResponse(),mainProcessor.getRequest(),INTERNAL_SERVER_ERROR, "执行方法时发生了错误！");
-            mainProcessor.sendResponse();
-            return;
-        } catch (InvocationTargetException e) {
+        } catch (Exception e) {
             logger.error("处理失败！", e);
             MainProcessor.productSimpleResponse(mainProcessor.getResponse(),mainProcessor.getRequest(),INTERNAL_SERVER_ERROR, "执行方法时发生了错误！");
             mainProcessor.sendResponse();
             return;
         }
-    }
-
-    /**
-     * 参数绑定
-     * 这里暂时只实现request 和 response ，简单数据的绑定
-     * 自定义一个request 和 response
-     * @param parameters
-     * @param request
-     * @return
-     */
-    private  Object[] bindParams(Parameter[] parameters, ServerHttpRequest request, ServerHttpResponse response){
-        Object[] params = new Object[parameters.length];
-
-        for(int i = 0; i < parameters.length; i++){
-            Class clazz = parameters[i].getType();
-
-            //绑定系统赋予的对象，如request,request 和 封装的参数
-            if (clazz.equals(ServerHttpRequest.class)){
-                params[i] = request;
-            }else if(clazz.equals(ServerHttpResponse.class)){
-                params[i] = response;
-            } else if(parameters[i].getAnnotation(RequestParams.class) != null){
-                params[i] = this.bindObject(clazz, request, parameters[i].getAnnotation(RequestParams.class).isValidate());
-            } else{  //绑定其他
-                try {
-                    params[i] = this.bind(parameters[i].getName(), clazz, request);
-                } catch (InstantiationException e) {
-                    logger.error("绑定参数失败", e);
-                } catch (IllegalAccessException e) {
-                    logger.error("绑定参数失败", e);
-                }
-            }
-        }
-        return params;
-    }
-
-    /**
-     * 绑定参数中获取的对象
-     * 目前只支持了 String Integer,Double 可以考虑类似spring MVC 的数据绑定模式
-     * @param name
-     * @param clazz
-     * @param request
-     * @return
-     * @throws IllegalAccessException
-     * @throws InstantiationException
-     */
-    private Object bind(String name, Class clazz, ServerHttpRequest request) throws IllegalAccessException, InstantiationException {
-
-        String value = request.getPram(name);
-        if (value == null || value.equals("")){
-            return clazz.newInstance();
-        }
-
-        if (clazz.equals(String.class)){
-            return value;
-        }
-        if (clazz.equals(Integer.class)){
-            return Integer.valueOf(value);
-        }
-        if (clazz.equals(Double.class)){
-            return Double.valueOf(value);
-        }
-        return clazz.newInstance();
-    }
-
-    /**
-     * 对象参数封装，暂时使用的BeanUtils，需要时修改, 数据校验还没有实现
-     * @param clazz
-     * @param request
-     * @param check
-     * @return
-     */
-    private Object bindObject(Class clazz, ServerHttpRequest request, boolean check){
-        try {
-            Object object = clazz.newInstance();
-            Field[] fields = clazz.getDeclaredFields();
-            for (Field field : fields){
-                String name = field.getName();
-                String value = request.getPram(name);
-                if (value != null){
-                    BeanUtils.setProperty(object, name, value);
-                }
-                if (check){
-                    //do check
-                }
-            }
-            return object;
-        } catch (Exception e){
-            logger.error(e);
-        }
-        return null;
     }
 
     /**

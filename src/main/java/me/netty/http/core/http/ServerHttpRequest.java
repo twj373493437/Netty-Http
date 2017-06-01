@@ -2,6 +2,7 @@ package me.netty.http.core.http;
 
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.cookie.Cookie;
+import me.netty.http.core.MainProcessor;
 import me.netty.http.core.session.HttpSession;
 
 import java.util.Map;
