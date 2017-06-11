@@ -11,7 +11,7 @@ http server based on netty，基于Netty的HTTP服务
 
 3.基于netty开发，可以在mapping 注解处配置 isAsyn从而异步执行，而不是用netty的工作线程。
 
-4.路由使用了Java动态编码技术，避免反射带来的性能开销。
+4.路由使用了Java动态编码技术，避免反射执行invoke带来的性能开销。
 
 5.支持直接注解注入spring中的bean，可以用名称或者类型匹配获取，前提是初始化server前传入
 Spring的context。
