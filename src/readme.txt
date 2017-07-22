@@ -26,7 +26,7 @@ todo list
 
 //websocket 的支持(暂时不实现)
 
-//MVC(基于freemarker)(暂不实现)
+MVC(基于freemarker)(暂不实现)
 
 http2 实现和测试
 

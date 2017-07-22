@@ -11,15 +11,12 @@ import me.netty.http.core.http.ServerHttpResponse;
 import me.netty.http.utils.MyClassUtils;
 import io.netty.buffer.ByteBufUtil;
 import me.netty.http.utils.ReflectionUtils;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -115,8 +112,16 @@ public class Dispatcher {
             if (!value.startsWith("/")){
                 value = "/" + value;
             }
+
+            //判断是否 return view
+            boolean isReturnView = false;
+            ReturnModelAndView retunModelAndView = method.getAnnotation(ReturnModelAndView.class);
+            if (retunModelAndView != null){
+                isReturnView = true;
+            }
+
             //保存
-            Function function = new Function(target, mapping.method(), method, mapping.isAsyn());
+            Function function = new Function(target, mapping.method(), method, mapping.isAsyn(), isReturnView);
             functionMap.put(value, function);
             logger.debug("add function : " + value);
         }
@@ -186,12 +191,14 @@ public class Dispatcher {
         Object res;
         try {
             res = function.doMethod(mainProcessor);
+
             //构造返回响应对象
             if(res instanceof String){
                 ByteBufUtil.writeUtf8(mainProcessor.getResponse().content(), (String)res);
             }else{
                 //序列化？
                 // todo 这里加上序列化， 另外考虑传入content type
+
             }
             mainProcessor.getResponse().headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
             mainProcessor.getResponse().headers().setInt(CONTENT_LENGTH, mainProcessor.getResponse().content().readableBytes());
@@ -225,7 +232,7 @@ public class Dispatcher {
             SpringBean beanAnnotation = field.getAnnotation(SpringBean.class);
             if (beanAnnotation == null){
                 if (logger.isDebugEnabled()) {
-                    logger.debug("找到了field但是没有注解:" + field.getName());
+                    logger.debug("ignore no annotation property:" + field.getName());
                 }
                 continue;
             }

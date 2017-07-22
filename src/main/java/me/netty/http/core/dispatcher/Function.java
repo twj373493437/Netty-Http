@@ -27,6 +27,7 @@ public class Function {
     private MethodProxy proxy;
     private Object targetController;
     private Method method;
+    private boolean returnView;  // is return view?
 
     public Function(Object obj, String httpMethod, Method method, boolean isAsyn) {
         this.httpMethod = httpMethod;
@@ -39,6 +40,19 @@ public class Function {
         } catch (Exception e) {
             logger.error("获取运行对象时发生错误", e);
         }
+    }
+
+    /**
+     * add is return view construction
+     * @param obj
+     * @param httpMethod
+     * @param method
+     * @param isAsyn
+     * @param isRetunView
+     */
+    public Function(Object obj, String httpMethod, Method method, boolean isAsyn, boolean isRetunView) {
+        this(obj, httpMethod, method, isAsyn);
+        this.returnView = isRetunView;
     }
 
     public String getHttpMethod() {
@@ -57,6 +71,7 @@ public class Function {
     public Object doMethod(MainProcessor processor) {
         //得到绑定的参数
         Object[] params = ParamsBinder.bindParams(this.method.getParameters(), processor);
+
         return proxy.doMethod(params, targetController);
     }
 
@@ -110,5 +125,9 @@ public class Function {
         proxyClass.addMethod(cm);
 
         return (MethodProxy) proxyClass.toClass().newInstance();
+    }
+
+    public boolean isReturnView() {
+        return returnView;
     }
 }
