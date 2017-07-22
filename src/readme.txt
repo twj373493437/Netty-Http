@@ -19,9 +19,9 @@ session(接口化，以便替换其他实现方式) 默认基于本地内存实�
 
 支持包内的resource作为静态文件
 
-todo list
 添加spring 支持，直接在Controller 中使用注解类注入Spring中的bean
 
+todo list
 内容压缩 gzip
 
 //websocket 的支持(暂时不实现)
