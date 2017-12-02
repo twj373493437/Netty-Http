@@ -35,11 +35,11 @@ public class ServerMainProcessor implements MainProcessor{
     @Override
     public void process(ServerHttpRequest request, ServerHttpResponse response){
         ServerContext serverContext = ServerContext.getServerContext(request);
-        List<BullInterceptor> list =serverContext.getBullInterceptors();
+        List<HttpInterceptor> list =serverContext.getHttpInterceptors();
 
         //前置拦截器
-        for (BullInterceptor bullInterceptor : list){
-            boolean b = bullInterceptor.beforeHandle(request, response);
+        for (HttpInterceptor httpInterceptor : list){
+            boolean b = httpInterceptor.beforeHandle(request, response);
             if (!b) {
                 this.sendResponse();
                 return;
@@ -68,8 +68,8 @@ public class ServerMainProcessor implements MainProcessor{
         }catch (Exception e) {
             logger.info("出现了一个错误", e);
             //异常拦截
-            for (BullInterceptor bullInterceptor : list) {
-                bullInterceptor.onException(request, response, e);
+            for (HttpInterceptor httpInterceptor : list) {
+                httpInterceptor.onException(request, response, e);
                 this.sendResponse();
             }
         }
@@ -79,7 +79,7 @@ public class ServerMainProcessor implements MainProcessor{
     public void sendResponse() {
 
         ServerContext serverContext = ServerContext.getServerContext(request);
-        List<BullInterceptor> list =serverContext.getBullInterceptors();
+        List<HttpInterceptor> list =serverContext.getHttpInterceptors();
 
         //处理Cookie
         if (response.cookies() != null){
@@ -91,9 +91,9 @@ public class ServerMainProcessor implements MainProcessor{
         }
 
         //后置拦截器
-        for (BullInterceptor bullInterceptor : list){
+        for (HttpInterceptor httpInterceptor : list){
 
-            bullInterceptor.beforeHandle(request, response);
+            httpInterceptor.beforeHandle(request, response);
 
         }
 

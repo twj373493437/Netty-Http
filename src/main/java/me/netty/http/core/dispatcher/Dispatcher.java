@@ -3,7 +3,7 @@ package me.netty.http.core.dispatcher;
 import io.netty.buffer.ByteBuf;
 import me.netty.http.annnotation.*;
 import me.netty.http.core.ServerContext;
-import me.netty.http.core.BullInterceptor;
+import me.netty.http.core.HttpInterceptor;
 import me.netty.http.core.MainProcessor;
 import me.netty.http.core.asyn.ProcessRunnable;
 import me.netty.http.core.http.ServerHttpRequest;
@@ -52,10 +52,10 @@ public class Dispatcher {
                 60L, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(100, true),
                 (r, executor) -> {
-                    ProcessRunnable runnable = (ProcessRunnable) r;
-                    MainProcessor processor = runnable.getMainProcessor();
-                    MainProcessor.productSimpleResponse(processor.getResponse(),processor.getRequest(),INTERNAL_SERVER_ERROR,"服务器不堪重负，请待会再试");
-                    processor.sendResponse();
+//                    ProcessRunnable runnable = (ProcessRunnable) r;
+//                    MainProcessor processor = runnable.getMainProcessor();
+//                    MainProcessor.productSimpleResponse(processor.getResponse(),processor.getRequest(),INTERNAL_SERVER_ERROR,"服务器不堪重负，请待会再试");
+//                    processor.sendResponse();
                 });
     }
 
@@ -84,7 +84,7 @@ public class Dispatcher {
                Interceptor interceptor = (Interceptor) c.getAnnotation(Interceptor.class);
                 if (interceptor != null){
                     logger.debug("add interceptor" + interceptor.toString());
-                    this.serverContext.addInterceptor((BullInterceptor) c.newInstance());
+                    this.serverContext.addInterceptor((HttpInterceptor) c.newInstance());
                 }
             }
         }

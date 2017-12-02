@@ -110,8 +110,7 @@ public class StaticFileManager {
                 return false;
             }
             content.writeBytes(fileByte);
-            MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
-            response.headers().set(CONTENT_TYPE, mimeTypesMap.getContentType(path));
+            response.headers().set(CONTENT_TYPE, MIMEType.getType(path));
             response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
             mainProcessor.sendResponse();
             return true;

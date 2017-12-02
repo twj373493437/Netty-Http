@@ -53,24 +53,24 @@ public class ServerContext {
     private SessionListener sessionListener;
 
     //拦截器
-    private List<BullInterceptor> bullInterceptors;
+    private List<HttpInterceptor> httpInterceptors;
 
     //spring Context支持
     private ApplicationContext springContext;
 
     private ServerContext() {
         scanPackages = new ArrayList<>();
-        bullInterceptors = new ArrayList<>(8);  //一般不会超过8个
+        httpInterceptors = new ArrayList<>(8);  //一般不会超过8个
     }
 
     /**
      * 添加拦截器
      *
-     * @param bullInterceptor
+     * @param httpInterceptor
      */
-    public void addInterceptor(BullInterceptor bullInterceptor) {
-        if (bullInterceptor != null) {
-            this.bullInterceptors.add(bullInterceptor);
+    public void addInterceptor(HttpInterceptor httpInterceptor) {
+        if (httpInterceptor != null) {
+            this.httpInterceptors.add(httpInterceptor);
         }
     }
 
@@ -79,8 +79,8 @@ public class ServerContext {
      *
      * @return
      */
-    public List<BullInterceptor> getBullInterceptors() {
-        return this.bullInterceptors;
+    public List<HttpInterceptor> getHttpInterceptors() {
+        return this.httpInterceptors;
     }
 
     public Object getAttr(String key) {
@@ -248,6 +248,10 @@ public class ServerContext {
     public void initByConfigFile(String path) throws Exception {
 
         InputStream inStream = this.getClass().getResourceAsStream(path);
+
+        if (inStream == null){
+            throw new Exception("no such file :" + path);
+        }
 
         Properties pro = new Properties();
         pro.load(inStream);

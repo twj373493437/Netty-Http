@@ -6,7 +6,7 @@ import me.netty.http.core.http.ServerHttpResponse;
 /**
  * Created by 1 on 2017/3/13.
  */
-public interface BullInterceptor {
+public interface HttpInterceptor {
 
     /**
      * @param request
@@ -22,7 +22,7 @@ public interface BullInterceptor {
      * @param response
      * @return
      */
-    void AfterHandle(ServerHttpRequest request, ServerHttpResponse response);
+    void afterHandle(ServerHttpRequest request, ServerHttpResponse response);
 
     /**
      * 异常处理
